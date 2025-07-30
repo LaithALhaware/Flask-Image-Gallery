@@ -15,21 +15,13 @@
 * 🔍 Fullscreen lightbox with zoom, pan & swipe
 * 📱 Mobile-friendly iOS-style action bar
 
----
-
-### 🖼️ Screenshot
-
-![Gallery Screenshot](static/screenshots/Screenshot%202025-07-30%20062628.png)
-
----
-
 ### ⚙️ Installation
 
 1️⃣ **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/flask-image-gallery.git
-cd flask-image-gallery
+git clone https://github.com/your-username/Flask-Image-Gallery.git
+cd Flask-Image-Gallery
 ```
 
 2️⃣ **Create a virtual environment & install dependencies**
@@ -57,7 +49,7 @@ http://127.0.0.1:5022/
 ### 📂 Project Structure
 
 ```
-flask-image-gallery/
+Flask-Image-Gallery/
 ├── app.py                 # Flask backend
 ├── templates/
 │   └── index.html         # Gallery UI
