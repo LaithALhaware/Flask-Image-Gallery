@@ -1,3 +1,4 @@
+
 ## 📸 Flask Image Gallery
 
 🖼️ A clean and responsive **Flask-based image gallery** where you can **upload**, **view**, **download (📥)**, and **delete (🗑️)** images. Supports **bulk selection** and **zip downloads** with a modern UI.
@@ -18,11 +19,7 @@
 
 ### 🖼️ Screenshot
 
-> *(Add your screenshots here)*
-
-```
-static/screenshots/homepage.png
-```
+![Gallery Screenshot](static/screenshots/Screenshot%202025-07-30%20062628.png)
 
 ---
 
