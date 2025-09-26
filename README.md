@@ -1,6 +1,8 @@
 
 ## 📸 Flask Image Gallery
 
+![Alt Text](Main.png)
+
 🖼️ A clean and responsive **Flask-based image gallery** where you can **upload**, **view**, **download (📥)**, and **delete (🗑️)** images. Supports **bulk selection** and **zip downloads** with a modern UI.
 
 ---
