@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, session, flash
+from functools import wraps
 import os
 import zipfile
 from io import BytesIO
@@ -13,10 +14,49 @@ app.config['UPLOAD_FOLDER'] = BASE_UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'mp4'}
 
+
+app.secret_key = "102030405060708090100"
+
+USERS = {
+    "admin": "123456",
+    "user": "0000"
+}
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username in USERS and USERS[username] == password:
+            session['user'] = username
+            return redirect(url_for('index'))
+        else:
+            flash("Invalid username or password")
+
+    return render_template('Login.html')
+    
+    
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('login')) 
+    
+    
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     album = request.args.get('album', None)  # optional album filter
 
@@ -76,6 +116,7 @@ def index():
 
 
 @app.route('/download', methods=['POST'])
+@login_required
 def download():
     album = request.form.get('album', 'Default')
     album_path = os.path.join(BASE_UPLOAD_FOLDER, album)
@@ -102,6 +143,7 @@ def download():
 
 
 @app.route('/DeletSelected', methods=['POST'])
+@login_required
 def DeletSelected():
     album = request.form.get('album', 'Default')
     album_path = os.path.join(BASE_UPLOAD_FOLDER, album)
@@ -122,6 +164,7 @@ def DeletSelected():
     
 
 @app.route('/DeletImage', methods=['POST'])
+@login_required
 def DeletImage():
     imagName = request.form.get('imagName')
     path_only = '/' + imagName.split('/', 3)[-1]
