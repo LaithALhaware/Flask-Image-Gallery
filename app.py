@@ -12,8 +12,7 @@ BASE_UPLOAD_FOLDER = 'static/Uploads'
 os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = BASE_UPLOAD_FOLDER
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'mp4'}
-
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'mp4', 'avif'}
 
 app.secret_key = "102030405060708090100"
 
