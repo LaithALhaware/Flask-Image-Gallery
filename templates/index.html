@@ -140,13 +140,39 @@ display: flex;vertical-align: middle;
     right: 20px;
     z-index: 999999;
     position: fixed;
-    font-size: xx-large;
+    font-size: x-large;
     width: auto;
-    padding: 5px 15px;
+    padding: 5px 12px;
     background-color: red;
 }
-        #prevBtn { top: 50%; left: 20px; transform: translateY(-50%);      z-index: 100; position: fixed;}
-        #nextBtn { top: 50%; right: 20px; transform: translateY(-50%);  position: fixed; }
+        #prevBtn {    top: 50%;
+    left: 0px;
+    transform: translateY(-50%);
+    z-index: 100;
+    position: fixed;
+    height: 100%;
+    width: 50px;
+    align-items: anchor-center;
+    justify-content: right;
+    border-radius: 0px;
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;}
+    
+    
+        #nextBtn { 
+    top: 50%;
+    right: 0px;
+    transform: translateY(-50%);
+    z-index: 100;
+    position: fixed;
+    height: 100%;
+    width: 50px;
+    align-items: anchor-center;
+    justify-content: left;
+    border-radius: 0px;
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+}
 
 
     </style>
@@ -228,12 +254,12 @@ display: flex;vertical-align: middle;
  
  &nbsp;
  <button class="btn open-btn" type="button" style="padding: 0px;background: unset;">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="35" height="50" x="0" y="0" viewBox="0 0 21 21" style="enable-background:new 0 0 512 512" xml:space="preserve" fill-rule="evenodd" class=""><g transform="matrix(1.1399999999999992,0,0,1.1399999999999992,-1.474053313732142,-1.4700356149673368)"><g fill="#0cf"><path d="M3.286 2.822H7.67c.51.116 1.154.511 1.693.964.539.453.845.832 1.082 1.233l.043.033h7.226c1.084 0 1.968.888 1.968 1.969v5.296a4.2 4.2 0 1 0-5.87 5.853H3.285a1.974 1.974 0 0 1-1.968-1.968V4.792c0-1.085.884-1.97 1.968-1.97z" fill="#00ccff" opacity="1" data-original="#00ccff" class=""></path><path d="M16.27 11.353a3.413 3.413 0 1 1-.001 6.825 3.413 3.413 0 0 1 0-6.825zm-.366 4.875V15.13h-1.097a.366.366 0 0 1 0-.731h1.097v-1.098a.366.366 0 0 1 .731 0V14.4h1.097a.366.366 0 0 1 0 .73h-1.097v1.098a.366.366 0 0 1-.731 0z" fill="#00ccff" opacity="1" data-original="#00ccff" class=""></path></g></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#2196f3" fill-rule="evenodd" d="M256 511.44c140.724 0 255.5-114.655 255.5-255.379S396.724.56 256 .56.5 115.336.5 256.06 115.276 511.44 256 511.44z" clip-rule="evenodd" opacity="1" data-original="#2196f3"></path><path fill="#ffffff" d="M405.379 178.616v154.768c0 54.497-44.337 98.833-98.833 98.833H205.455c-54.497 0-98.833-44.337-98.833-98.833a8.607 8.607 0 0 1 8.604-8.604c4.756 0 8.611 3.855 8.611 8.604 0 45.004 36.613 81.625 81.618 81.625h101.091c45.004 0 81.618-36.62 81.618-81.625V187.021h-36.599c-29.571 0-53.623-24.051-53.623-53.616V96.991h-92.487c-45.004 0-81.618 36.62-81.618 81.625v123.82a8.61 8.61 0 0 1-8.611 8.611c-4.75 0-8.604-3.855-8.604-8.611v-123.82c0-54.497 44.337-98.833 98.833-98.833h101.091a8.61 8.61 0 0 1 6.085 2.519l90.222 90.229a8.586 8.586 0 0 1 2.526 6.085zm-149.386 30.122a8.61 8.61 0 0 0-8.611 8.611v52.507h-52.507a8.603 8.603 0 0 0-8.604 8.604 8.607 8.607 0 0 0 8.604 8.604h52.507v52.528c0 4.75 3.855 8.604 8.611 8.604a8.607 8.607 0 0 0 8.604-8.604v-52.528h52.528a8.607 8.607 0 0 0 8.604-8.604 8.603 8.603 0 0 0-8.604-8.604h-52.528v-52.507c0-4.756-3.854-8.611-8.604-8.611z" opacity="1" data-original="#ffffff"></path></g></svg>
 </button>
+ &nbsp;
 
-<!--
-<a class="btn" href="?logout=Yes" style="background: #e41a14;margin-left: 5px;vertical-align: middle;padding:5px 10px;" ><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M363.335 488a24 24 0 0 1-24 24H113.082a80.09 80.09 0 0 1-80-80V80a80.09 80.09 0 0 1 80-80h226.253a24 24 0 0 1 0 48H113.082a32.035 32.035 0 0 0-32 32v352a32.034 32.034 0 0 0 32 32h226.253a24 24 0 0 1 24 24zm108.553-248.97L357.837 124.978a24 24 0 1 0-33.937 33.941L396.977 232H208.041a24 24 0 1 0 0 48h188.935l-73.08 73.08a24 24 0 1 0 33.941 33.941l114.051-114.05a24 24 0 0 0 0-33.941z" fill="#ffffff" opacity="1" data-original="#fff"></path></g></svg></a>
--->
+<a class="btn" href="{{ url_for('logout') }}" style="padding: 0px;background: unset;" ><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><g data-name="Layer 2"><circle cx="256" cy="256" r="256" fill="#ff2147" opacity="1" data-original="#ff2147" class=""></circle><g fill="#fff"><rect width="52.31" height="134.46" x="229.84" y="116" rx="26.16" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></rect><path d="M304 178.56a22.93 22.93 0 0 0 6.18 26.07 82.85 82.85 0 1 1-108.49.13 23.1 23.1 0 0 0 6.31-26.21c-5.93-14.43-24.3-19-36.11-8.8a128.75 128.75 0 1 0 168.34.11 23 23 0 0 0-36.23 8.7z" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></path></g></g></g></svg></a>
+
     </div>
 
 
@@ -847,4 +873,4 @@ shareBtn.addEventListener('click', async () => {
 
 </script>
 </body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </html>
+</html>
