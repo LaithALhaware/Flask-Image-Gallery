@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gallery Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="static/Icon.svg" type="image/svg+xml">
+<style>
+* {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                 "SF Pro Text", Helvetica, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(120deg, #0a84ff, #64d2ff, #5e5ce6);
+    background-size: 300% 300%;
+    animation: waterFlow 12s ease infinite;
+}
+
+/* Water animation */
+@keyframes waterFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating light bubbles */
+body::before,
+body::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: float 18s infinite linear;
+}
+
+body::after {
+    width: 300px;
+    height: 300px;
+    animation-duration: 25s;
+    animation-direction: reverse;
+}
+
+@keyframes float {
+    0% { transform: translate(-100px, -100px); }
+    50% { transform: translate(200px, 200px); }
+    100% { transform: translate(-100px, -100px); }
+}
+
+/* Login card */
+.login-card {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 24px;
+    padding: 32px 28px 0px 28px;
+    text-align: center;
+    z-index:9999999999999999999999999999999999999999999999999999999999999;
+}
+
+.login-card h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1c1c1e;
+}
+
+.login-card p {
+    font-size: 14px;
+    color: #636366;
+}
+
+input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #d1d1d6;
+    background: #f2f2f7;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 14px;
+}
+
+input:focus {
+    background: #fff;
+    border-color: #0a84ff;
+    box-shadow: 0 0 0 3px rgba(10,132,255,0.2);
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: #0a84ff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.error {
+    margin-top: 14px;
+    color: #ff3b30;
+    font-size: 14px;
+}
+
+.apple-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.security-note {
+    color: red;
+    text-align: justify;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="login-card">
+    <div class="apple-icon"><img src="static/Icon.svg" style="width: 30%;"></div>
+    <h1>Gallery Home</h1>
+    <p>Sign in</p>
+
+    <form method="POST" style="padding-bottom: 32px;">
+        <div class="input-group">
+            <input type="text" name="username" placeholder="Apple ID" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <button type="submit">Continue</button>
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="error">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+   
+   <p class="security-note">
+    🔒This system is secure and continuously monitored.
+    Any unauthorized login attempts, access to data, or copying of content
+    may be logged and handled in accordance with applicable security policies
+    and the laws in force within the country from which this system is accessed.
+</p>
+    
+</div>
+
+
+
+
+
+</body>
+</html>
+
