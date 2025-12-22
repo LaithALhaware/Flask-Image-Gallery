@@ -5,7 +5,35 @@
     <link rel="icon" href="static/Icon.svg" type="image/svg+xml">
 
     <title>Gallery Home</title>
+    
+    
+    <meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<script>
+document.addEventListener('keydown', function (e) {
+    if (
+        (e.ctrlKey || e.metaKey) &&
+        ['+', '-', '=', '0'].includes(e.key)
+    ) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('wheel', function (e) {
+    if (e.ctrlKey) {
+        e.preventDefault();
+    }
+}, { passive: false });
+</script>
+
+
+
+
     <style>
+    html, body {
+    touch-action: manipulation;
+}
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -14,14 +42,14 @@
             color: #333;
         }
         header {
-            font-size: 22px;
+        display: flex;align-items: center;
             font-weight: 600;
             z-index: 10;
         }
 
         .upload-box {
-            background: white;
-            padding: 20px 15px;
+
+            padding: 20px 5px;
             border-bottom: 1px solid #ddd;
             text-align: center;
     display: flex;
@@ -33,6 +61,10 @@ position: fixed;
     width: -webkit-fill-available;
 margin-top: -60px;
     height: 20px;
+    
+        background: rgb(255 255 255 / 50%);
+    backdrop-filter: blur(20px);
+    
         }
         .upload-box input[type="file"] {
             margin: 12px 0;
@@ -53,10 +85,14 @@ margin-top: -60px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-border-radius: 9999px;
+border-radius: 10px;
     padding: 10px 10px;
 display: flex;vertical-align: middle;
         }
+        .radi {
+        border-radius: 999999px;
+        }
+        
         .btn:hover {
             background: #005ecb;
         }
@@ -119,10 +155,11 @@ display: flex;vertical-align: middle;
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
             justify-content: center;
             align-items: center;
             z-index: 999;
+                background-color: rgba(0, 0, 0, 0.2);
         }
         #lightboxOverlay.active {
             display: flex;
@@ -136,14 +173,14 @@ display: flex;vertical-align: middle;
 
 
         #closeBtn {
-    top: 20px;
-    right: 20px;
+    top: 13px;
+    right: 19px;
     z-index: 999999;
     position: fixed;
     font-size: x-large;
     width: auto;
     padding: 5px 12px;
-    background-color: red;
+    background-color: #ff2147;
 }
         #prevBtn {    top: 50%;
     left: 0px;
@@ -173,117 +210,6 @@ display: flex;vertical-align: middle;
     border-top-left-radius: 9999px;
     border-bottom-left-radius: 9999px;
 }
-
-
-    </style>
-</head>
-<body>
-
-
-
-
-
-
-
-
-<div class="upload-box">
-
-
-
-
-<form method="POST" enctype="multipart/form-data" class="upload-form" id="uploadForm">
-  <label for="fileUpload" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.4 489.4" width="25" height="25">
-            <g>
-                <path d="M382.4 422.75H277.4v-106.1h34.7c8.8 0 14-10 8.8-17.2l-67.5-93.4c-4.3-6-13.2-6-17.5 0l-67.5 93.4c-5.2 7.2-.1 17.2 8.8 17.2h34.7v106.1H94.3c-52.5-2.9-94.3-52-94.3-105.2 0-36.7 19.9-68.7 49.4-86-2.7-7.3-4.1-15.1-4.1-23.3 0-37.5 30.3-67.8 67.8-67.8 8.1 0 15.9 1.4 23.2 4.1 21.7-46 68.5-77.9 122.9-77.9 70.4.1 128.4 54 135 122.7 54.1 9.3 95.2 59.4 95.2 116.1 0 60.6-47.2 113.1-107 117.3z" fill="#ffffff"></path>
-            </g>
-        </svg></label>
-  <input id="fileUpload" type="file" name="file" multiple accept="image/*" hidden>
-</form>
-
-<script>
-  const fileInput = document.getElementById('fileUpload');
-  const uploadForm = document.getElementById('uploadForm');
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length === 0) return;
-
-    const count = fileInput.files.length;
-    const msg = count === 1
-      ? "Upload this image?"
-      : `Upload these ${count} images?`;
-
-    if (confirm(msg)) {
-      uploadForm.submit();
-    } else {
-      // Clear selection so user can pick again
-      fileInput.value = "";
-    }
-  });
-</script>
-
-
-
-
-
-
-
-<header style="display: flex;flex-direction: column;"><form method="GET">
-  <select name="album" onchange="this.form.submit()" class="btn" style="padding: 2px 10px;">
-    <option value="">All Albums</option>
-    {% for alb in albums %}
-      <option value="{{ alb }}" {% if alb == current_album %}selected{% endif %}>
-        {{ alb }}
-      </option>
-    {% endfor %}
-  </select>
-</form>
-
-<sub style="font-size: small;">Total images: {{ total_images }}</sub>
-</header>
-
-
-
-
-
-
-
-
-
-    <div class="controls">
-        <button id="toggleSelectBtn" type="button" class="btn"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 682.667 682.667" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><defs><clipPath id="a" clipPathUnits="userSpaceOnUse"><path d="M0 512h512V0H0Z" fill="#fff" opacity="1" data-original="#fff"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.33333 0 0 -1.33333 0 682.667)"><path d="M0 0c6.582 11.096 10.361 24.05 10.361 37.886 0 41.069-33.293 74.362-74.362 74.362" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(319.971 296.188)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-6.582 11.096-10.361 24.05-10.361 37.886 0 41.069 33.294 74.362 74.362 74.362" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(191.968 296.188)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c11.242 18.382 17.721 39.993 17.721 63.118 0 46.946-26.702 87.655-65.747 107.769" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(359.4 270.956)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c19.315 41.268 61.212 69.855 109.787 69.855" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(146.183 385.37)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c0-44.343 23.822-83.121 59.367-104.235" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(134.819 334.074)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-8.087-19.673-12.546-41.22-12.546-63.809 0-45.736 18.282-87.202 47.938-117.488" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(100.577 397.883)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-30.208 44.492-81.211 73.723-139.042 73.723-37.824 0-72.727-12.504-100.802-33.604" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(395.012 428.291)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c9.021 20.602 14.025 43.363 14.025 67.293 0 17.391-2.643 34.164-7.55 49.94" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(409.884 266.781)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v189.409c0 13.255 10.746 24 24 24v0c13.255 0 24-10.745 24-24V3.408" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(231.97 144.237)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v24.52c0 13.254 10.746 24 24 24v0c13.255 0 24-10.746 24-24V0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(279.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v14.282c0 13.255 10.746 24 24 24v0c13.255 0 24-10.745 24-24V0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(327.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v.52c0 13.254 10.746 24 24 24 13.255 0 24-10.746 24-24v-21.628" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(375.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v-53.404a95.071 95.071 0 0 0-24-63.147" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(423.97 126.537)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v-67.477c0-24.37 8.486-47.98 24-66.774" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(231.97 144.237)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="m0 0-63.784 110.476c-6.97 12.073-2.833 27.511 9.24 34.482s27.512 2.834 34.482-9.239l15.627-27.068" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(236.098 47.32)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(123.128 436.818)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path></g></g></svg></button>
- 
- &nbsp;
- <button class="btn open-btn" type="button" style="padding: 0px;background: unset;">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#2196f3" fill-rule="evenodd" d="M256 511.44c140.724 0 255.5-114.655 255.5-255.379S396.724.56 256 .56.5 115.336.5 256.06 115.276 511.44 256 511.44z" clip-rule="evenodd" opacity="1" data-original="#2196f3"></path><path fill="#ffffff" d="M405.379 178.616v154.768c0 54.497-44.337 98.833-98.833 98.833H205.455c-54.497 0-98.833-44.337-98.833-98.833a8.607 8.607 0 0 1 8.604-8.604c4.756 0 8.611 3.855 8.611 8.604 0 45.004 36.613 81.625 81.618 81.625h101.091c45.004 0 81.618-36.62 81.618-81.625V187.021h-36.599c-29.571 0-53.623-24.051-53.623-53.616V96.991h-92.487c-45.004 0-81.618 36.62-81.618 81.625v123.82a8.61 8.61 0 0 1-8.611 8.611c-4.75 0-8.604-3.855-8.604-8.611v-123.82c0-54.497 44.337-98.833 98.833-98.833h101.091a8.61 8.61 0 0 1 6.085 2.519l90.222 90.229a8.586 8.586 0 0 1 2.526 6.085zm-149.386 30.122a8.61 8.61 0 0 0-8.611 8.611v52.507h-52.507a8.603 8.603 0 0 0-8.604 8.604 8.607 8.607 0 0 0 8.604 8.604h52.507v52.528c0 4.75 3.855 8.604 8.611 8.604a8.607 8.607 0 0 0 8.604-8.604v-52.528h52.528a8.607 8.607 0 0 0 8.604-8.604 8.603 8.603 0 0 0-8.604-8.604h-52.528v-52.507c0-4.756-3.854-8.611-8.604-8.611z" opacity="1" data-original="#ffffff"></path></g></svg>
-</button>
- &nbsp;
-
-<a class="btn" href="{{ url_for('logout') }}" style="padding: 0px;background: unset;" ><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><g data-name="Layer 2"><circle cx="256" cy="256" r="256" fill="#ff2147" opacity="1" data-original="#ff2147" class=""></circle><g fill="#fff"><rect width="52.31" height="134.46" x="229.84" y="116" rx="26.16" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></rect><path d="M304 178.56a22.93 22.93 0 0 0 6.18 26.07 82.85 82.85 0 1 1-108.49.13 23.1 23.1 0 0 0 6.31-26.21c-5.93-14.43-24.3-19-36.11-8.8a128.75 128.75 0 1 0 168.34.11 23 23 0 0 0-36.23 8.7z" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></path></g></g></g></svg></a>
-
-    </div>
-
-
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<style>
 .switch {
   position: relative;
   display: inline-block;
@@ -336,9 +262,9 @@ input:checked + .slider:before {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: -1px;
   padding: 8px 16px calc(env(safe-area-inset-bottom) + 8px);
-  background: rgba(250, 250, 250, 0.95);
+  background: rgb(255 255 255 / 50%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(0,0,0,0.1);
@@ -352,6 +278,7 @@ input:checked + .slider:before {
     z-index: 2000;
     align-items: center;
 height: 50px;
+
 }
 
 .ios-btn-pill {
@@ -382,8 +309,330 @@ height: 50px;
 #lightboxImage:active {
   cursor: grabbing;
 }
+/* Modal background */
+  .modal-bg {
+    display: none; /* hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.2);
+    z-index: 999;
+    justify-content: center;
+    align-items: flex-start; /* start from top */
+    backdrop-filter: blur(10px);
+  }
+
+  /* Modal box */
+  .modal {
+    width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: -100%; /* start above the screen */
+    animation: slideDown 0.5s forwards;
+  }
+
+  @keyframes slideDown {
+    to {
+      margin-top: 20%; /* final position (roughly vertical center) */
+    }
+  }
+
+  /* Close button */
+  .close-btn {
+    font-size: 20px;
+    padding: 5px 10px;
+    background-color: #ff2147;
+    cursor: pointer;
+  }
+  .close-btn:hover {
+  background-color: red;
+  }
+    </style>
+</head>
+
+
+
+<style>
+
+    /* Blur layer (NOT the body itself) */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        backdrop-filter: blur(6px);
+        background: rgba(0,0,0,0.1);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 999;
+    }
+
+    body.blur::before {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Sidebar */
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 280px;
+        height: 100%;
+        background: #111;
+        color: white;
+        padding: 20px;
+        box-sizing: border-box;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        touch-action: none;
+            backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    }
+
+    #sidebar.active {
+        left: 0;
+    }
+
+    #sidebar a {
+        display: block;
+        color: white;
+        text-decoration: none;
+            font-size: 18px;
+    padding: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 10px;
+    }
+
+    #sidebar a:hover {
+        color: #00c3ff;
+    }
+
 
 </style>
+
+
+<body>
+
+<div id="sidebar">
+
+
+
+<div style="
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+">
+<h2 style="
+    padding: unset !important;
+    margin: unset;
+"><a href="{{ url_for('index') }}">Album's</a></h2>
+
+<div style="
+    display: flex;
+    flex-direction: row-reverse;
+">
+    <button class="close-btn btn radi" onclick="closeSidebar()" style="
+    font-size: x-large;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: xx-large;
+">×</button>
+     &nbsp;
+     <button class="btn open-btn" onclick="closeSidebar()" type="button" style="padding: 0px;background: unset;">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="45" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#2196f3" fill-rule="evenodd" d="M256 511.44c140.724 0 255.5-114.655 255.5-255.379S396.724.56 256 .56.5 115.336.5 256.06 115.276 511.44 256 511.44z" clip-rule="evenodd" opacity="1" data-original="#2196f3"></path><path fill="#ffffff" d="M405.379 178.616v154.768c0 54.497-44.337 98.833-98.833 98.833H205.455c-54.497 0-98.833-44.337-98.833-98.833a8.607 8.607 0 0 1 8.604-8.604c4.756 0 8.611 3.855 8.611 8.604 0 45.004 36.613 81.625 81.618 81.625h101.091c45.004 0 81.618-36.62 81.618-81.625V187.021h-36.599c-29.571 0-53.623-24.051-53.623-53.616V96.991h-92.487c-45.004 0-81.618 36.62-81.618 81.625v123.82a8.61 8.61 0 0 1-8.611 8.611c-4.75 0-8.604-3.855-8.604-8.611v-123.82c0-54.497 44.337-98.833 98.833-98.833h101.091a8.61 8.61 0 0 1 6.085 2.519l90.222 90.229a8.586 8.586 0 0 1 2.526 6.085zm-149.386 30.122a8.61 8.61 0 0 0-8.611 8.611v52.507h-52.507a8.603 8.603 0 0 0-8.604 8.604 8.607 8.607 0 0 0 8.604 8.604h52.507v52.528c0 4.75 3.855 8.604 8.611 8.604a8.607 8.607 0 0 0 8.604-8.604v-52.528h52.528a8.607 8.607 0 0 0 8.604-8.604 8.603 8.603 0 0 0-8.604-8.604h-52.528v-52.507c0-4.756-3.854-8.611-8.604-8.611z" opacity="1" data-original="#ffffff"></path></g></svg>
+</button>
+</div>
+ </div>
+ 
+    
+    
+    <div style="height: -webkit-fill-available;overflow-inline: auto;">
+    {% for alb in albums %}
+        <a href="{{ url_for('index', album=alb) }}" class="" style="{% if alb == current_album %}backdrop-filter: contrast(0.5);{% endif %}">
+            {{ alb }}
+        </a>
+    {% endfor %}
+    </div>
+    <center>Totalling {{size_gb}}</center>
+
+</div>
+
+<script>
+    const sidebar = document.getElementById("sidebar");
+
+    function openSidebar() {
+        sidebar.classList.add("active");
+        document.body.classList.add("blur");
+        
+        
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove("active");
+        document.body.classList.remove("blur");
+    }
+
+</script>
+
+
+
+
+
+<body id="body">
+
+
+
+
+<div class="upload-box">
+
+
+<div class="controls">
+    <button onclick="openSidebar()" class="btn radi"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M313.213 241H512V55c0-30.327-24.673-55-55-55H230v512h227c30.327 0 55-24.673 55-55V271H313.213l24.394 24.394c5.858 5.858 5.858 15.355 0 21.213s-15.355 5.858-21.213 0l-50-50c-5.858-5.858-5.858-15.355 0-21.213l50-50c5.858-5.858 15.355-5.858 21.213 0s5.858 15.355 0 21.213zM0 55v402c0 30.327 24.673 55 55 55h145V0H55C24.673 0 0 24.673 0 55zm140 155H60c-8.284 0-15-6.716-15-15s6.716-15 15-15h80c8.284 0 15 6.716 15 15s-6.716 15-15 15zm0-60H60c-8.284 0-15-6.716-15-15s6.716-15 15-15h80c8.284 0 15 6.716 15 15s-6.716 15-15 15zm0-90c8.284 0 15 6.716 15 15s-6.716 15-15 15H60c-8.284 0-15-6.716-15-15s6.716-15 15-15z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path></g></svg></button>
+
+ 
+ &nbsp;
+ 
+<form method="POST" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+  <label for="fileUpload" class="btn radi">
+   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.4 489.4" width="25" height="25">
+            <g>
+                <path d="M382.4 422.75H277.4v-106.1h34.7c8.8 0 14-10 8.8-17.2l-67.5-93.4c-4.3-6-13.2-6-17.5 0l-67.5 93.4c-5.2 7.2-.1 17.2 8.8 17.2h34.7v106.1H94.3c-52.5-2.9-94.3-52-94.3-105.2 0-36.7 19.9-68.7 49.4-86-2.7-7.3-4.1-15.1-4.1-23.3 0-37.5 30.3-67.8 67.8-67.8 8.1 0 15.9 1.4 23.2 4.1 21.7-46 68.5-77.9 122.9-77.9 70.4.1 128.4 54 135 122.7 54.1 9.3 95.2 59.4 95.2 116.1 0 60.6-47.2 113.1-107 117.3z" fill="#ffffff"></path>
+            </g>
+        </svg>
+  </label>
+  <input id="fileUpload" type="file" name="file" multiple accept="image/*" hidden>
+  <input type="hidden" id="album" name="album" value="{{ current_album }}">
+</form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<header style="display: flex;align-items: center;">
+
+<img src="static/Icon.svg" width="50px">&nbsp;
+<div style="display: flex;flex-direction: column;align-items: flex-start;">{% if not current_album %}
+    Gallery
+{% else %}
+    {{ current_album }}
+{% endif %}
+<sub style="font-size: small;">IMG : {{ total_images }}</sub>
+</div>
+</header>
+
+
+
+
+
+
+    <div class="controls">
+        <button id="toggleSelectBtn" type="button" class="btn radi"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 682.667 682.667" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><defs><clipPath id="a" clipPathUnits="userSpaceOnUse"><path d="M0 512h512V0H0Z" fill="#fff" opacity="1" data-original="#fff"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.33333 0 0 -1.33333 0 682.667)"><path d="M0 0c6.582 11.096 10.361 24.05 10.361 37.886 0 41.069-33.293 74.362-74.362 74.362" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(319.971 296.188)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-6.582 11.096-10.361 24.05-10.361 37.886 0 41.069 33.294 74.362 74.362 74.362" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(191.968 296.188)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c11.242 18.382 17.721 39.993 17.721 63.118 0 46.946-26.702 87.655-65.747 107.769" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(359.4 270.956)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c19.315 41.268 61.212 69.855 109.787 69.855" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(146.183 385.37)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c0-44.343 23.822-83.121 59.367-104.235" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(134.819 334.074)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-8.087-19.673-12.546-41.22-12.546-63.809 0-45.736 18.282-87.202 47.938-117.488" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(100.577 397.883)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c-30.208 44.492-81.211 73.723-139.042 73.723-37.824 0-72.727-12.504-100.802-33.604" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(395.012 428.291)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0c9.021 20.602 14.025 43.363 14.025 67.293 0 17.391-2.643 34.164-7.55 49.94" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(409.884 266.781)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v189.409c0 13.255 10.746 24 24 24v0c13.255 0 24-10.745 24-24V3.408" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(231.97 144.237)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v24.52c0 13.254 10.746 24 24 24v0c13.255 0 24-10.746 24-24V0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(279.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v14.282c0 13.255 10.746 24 24 24v0c13.255 0 24-10.745 24-24V0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(327.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v.52c0 13.254 10.746 24 24 24 13.255 0 24-10.746 24-24v-21.628" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(375.97 147.645)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v-53.404a95.071 95.071 0 0 0-24-63.147" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(423.97 126.537)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v-67.477c0-24.37 8.486-47.98 24-66.774" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(231.97 144.237)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="m0 0-63.784 110.476c-6.97 12.073-2.833 27.511 9.24 34.482s27.512 2.834 34.482-9.239l15.627-27.068" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(236.098 47.32)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path><path d="M0 0v0" style="stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1" transform="translate(123.128 436.818)" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#fff"></path></g></g></svg></button>
+ 
+ &nbsp;
+
+<a class="btn" href="{{ url_for('logout') }}" style="padding: 0px;background: unset;" ><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><g data-name="Layer 2"><circle cx="256" cy="256" r="256" fill="#ff2147" opacity="1" data-original="#ff2147" class=""></circle><g fill="#fff"><rect width="52.31" height="134.46" x="229.84" y="116" rx="26.16" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></rect><path d="M304 178.56a22.93 22.93 0 0 0 6.18 26.07 82.85 82.85 0 1 1-108.49.13 23.1 23.1 0 0 0 6.31-26.21c-5.93-14.43-24.3-19-36.11-8.8a128.75 128.75 0 1 0 168.34.11 23 23 0 0 0-36.23 8.7z" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></path></g></g></g></svg></a>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Progress UI -->
+<div id="uploadStatus" style="position: fixed;height: 100vh;width: -webkit-fill-available;z-index: 2147483647;display: none;bottom: 0px;margin-left: -15px;padding: 0px;align-content: center;padding: 30px;backdrop-filter: blur(5px);background: rgb(0 0 0 / 0.2);">
+  <div id="statusText" style="
+    font-weight: bold;
+    font-size: larger;
+    backdrop-filter: drop-shadow(2px 4px 6px black);
+    padding: 5px;
+    border-radius: 5px;
+    color: #fff;
+">Preparing upload...</div>
+  <div style="width:100%;background:#ddd;height: 15px;border-radius:5px;margin-top: 5px;">
+    <div id="progressBar" style="width:0%; height:100%; background:#4caf50; border-radius:5px;"></div>
+  </div>
+</div>
+<script>
+const fileInput = document.getElementById('fileUpload');
+const statusBox = document.getElementById('uploadStatus');
+const statusText = document.getElementById('statusText');
+const progressBar = document.getElementById('progressBar');
+
+
+const album = document.getElementById('album').value || "Default";
+
+fileInput.addEventListener('change', async () => {
+  const files = Array.from(fileInput.files);
+  if (files.length === 0) return;
+
+  if (!confirm(`Upload ${files.length} image(s) one by one?`)) {
+    fileInput.value = "";
+    return;
+  }
+
+  statusBox.style.display = "block";
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    statusText.innerText = `Uploading ${i + 1} of ${files.length}: ${file.name}`;
+
+    await uploadSingleFile(file);
+
+    const percent = Math.round(((i + 1) / files.length) * 100);
+    progressBar.style.width = percent + "%";
+  }
+
+  statusText.innerText = "✅ Upload finished";
+  fileInput.value = "";
+  statusBox.style.display = "none";
+  location.reload();
+});
+
+// Upload ONE file
+async function uploadSingleFile(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append('album', album);
+
+  const response = await fetch("/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  if (!response.ok) {
+    //alert("Upload failed for " + file.name);
+  }
+}
+</script>
+
+
+
+
+
+
+
 
 
 
@@ -394,7 +643,7 @@ height: 50px;
 <!-- Floating iOS-style action bar -->
 <div class="ios-action-bar" aria-hidden="true" id="selectBar">
 
-<div>
+<div style="display: flex;align-items: center;">
 <label class="switch">
   <input type="checkbox" id="selectAllCheckbox">
   <span class="slider round"></span>
@@ -407,7 +656,7 @@ height: 50px;
   <!-- Download -->
   <button type="submit" 
           formaction="{{ url_for('download') }}"
-          class="btn"
+          class="btn radi"
          >
     <!-- icon -->
     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 128 128">
@@ -418,7 +667,7 @@ height: 50px;
 &nbsp;  <!-- Delete -->
   <button type="submit"
           formaction="{{ url_for('DeletSelected') }}"
-          class="btn" style="background: red;"
+          class="btn radi" style="background: #ff2147;"
           onclick="return confirm('Are you sure you want to delete the selected images? This action cannot be undone.');"
 >
     <!-- icon -->
@@ -445,13 +694,26 @@ height: 50px;
 
 
 <div class="gallery">
-    {% if images %}
-        {% for img in images %}
-        <label class="gallery-item">
+{% if images %}
+    {% for img in images %}
+        <label class="gallery-item" style="position: relative; display: inline-block;"  onclick="openLightbox('static/Uploads/{{ img.album }}/{{ img.filename }}',{{ 'true' if img.is_video else 'false' }})">
             <input type="checkbox" name="selected_images" form="downloadForm" value="{{ img.album }}/{{ img.filename }}">
-            <img src="{{ url_for('static', filename='Uploads/' + img.album + '/' + img.filename) }}"  alt="Image">
+            
+            {% if img.is_video %}
+                <!-- Show video thumbnail -->
+                <img src="{{ url_for('static', filename=img.thumbnail) }}" alt="Video">
+                <!-- Play overlay -->
+                <span style="position: absolute; top: calc(50% - 25px); left:calc(50% - 25px); color: white; font-weight: bold;
+                             background: rgba(0,0,0,0.5); padding: 2px 4px; border-radius: 3px;    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" x="0" y="0" viewBox="0 0 163.861 163.861" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M34.857 3.613C20.084-4.861 8.107 2.081 8.107 19.106v125.637c0 17.042 11.977 23.975 26.75 15.509L144.67 97.275c14.778-8.477 14.778-22.211 0-30.686L34.857 3.613z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path></g></svg></span>
+            {% else %}
+                <!-- Show normal image -->
+                <img src="{{ url_for('static', filename='Uploads/' + img.album + '/' + img.filename) }}" alt="Image">
+            {% endif %}
         </label>
-        {% endfor %}
+    {% endfor %}
     {% else %}
         <img src="static/no-foto.webp" style="
     position: absolute;
@@ -470,28 +732,36 @@ height: 50px;
 <!-- Lightbox -->
 <div id="lightboxOverlay">
 
-    <div style="position:relative; text-align:center; width: 100%;">
+    <div style="position:relative; text-align:center;">
 
-<button id="closeBtn" class="btn" aria-label="Close">&times;</button>
+<button id="closeBtn" class="btn radi" aria-label="Close">&times;</button>
 
 
 <img id="lightboxImage" src="" alt="Fullscreen Image">
+
+<video id="lightboxVideo"
+       controls
+       style="display:none; max-width:100%;"
+></video>
+
 
 <!-- New buttons below the image -->
 <div class="ios-action-bar" style="margin-top:10px; display:flex; justify-content:center; gap:12px;">
 
 
-    <button id="prevBtn" class="btn">&#9664;</button>
+    <button id="prevBtn" class="btn radi" >&#9664;</button>
 
 
     
     
-<button id="downloadSingleBtn" class="btn" style="padding:8px 18px; font-size:16px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 515.283 515.283" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M400.775 515.283H114.507c-30.584 0-59.339-11.911-80.968-33.54C11.911 460.117 0 431.361 0 400.775v-28.628c0-15.811 12.816-28.628 28.627-28.628s28.627 12.817 28.627 28.628v28.628c0 15.293 5.956 29.67 16.768 40.483 10.815 10.814 25.192 16.771 40.485 16.771h286.268c15.292 0 29.669-5.957 40.483-16.771 10.814-10.815 16.771-25.192 16.771-40.483v-28.628c0-15.811 12.816-28.628 28.626-28.628s28.628 12.817 28.628 28.628v28.628c0 30.584-11.911 59.338-33.54 80.968-21.629 21.629-50.384 33.54-80.968 33.54zM257.641 400.774a28.538 28.538 0 0 1-19.998-8.142l-.002-.002-.057-.056-.016-.016c-.016-.014-.03-.029-.045-.044l-.029-.029a.892.892 0 0 0-.032-.031l-.062-.062-114.508-114.509c-11.179-11.179-11.179-29.305 0-40.485 11.179-11.179 29.306-11.18 40.485 0l65.638 65.638V28.627C229.014 12.816 241.83 0 257.641 0s28.628 12.816 28.628 28.627v274.408l65.637-65.637c11.178-11.179 29.307-11.179 40.485 0 11.179 11.179 11.179 29.306 0 40.485L277.883 392.39l-.062.062-.032.031-.029.029c-.014.016-.03.03-.044.044l-.017.016a1.479 1.479 0 0 1-.056.056l-.002.002c-.315.307-.634.605-.96.895a28.441 28.441 0 0 1-7.89 4.995l-.028.012c-.011.004-.02.01-.031.013a28.5 28.5 0 0 1-11.091 2.229z" fill="#ffffff" opacity="1" data-original="#000000"></path></g></svg></button>
+<button id="downloadSingleBtn" class="btn radi" style="padding:10px 10px; font-size:16px;"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 128 128">
+      <path d="M128 65c0 15.439-12.563 28-28 28H80c-2.211 0-4-1.791-4-4s1.789-4 4-4h20c11.027 0 20-8.973 20-20s-8.973-20-20-20h-4c-2.211 0-4-1.791-4-4 0-15.439-12.563-28-28-28S36 25.561 36 41c0 2.209-1.789 4-4 4h-4C16.973 45 8 53.973 8 65s8.973 20 20 20h20c2.211 0 4 1.791 4 4s-1.789 4-4 4H28C12.563 93 0 80.439 0 65s12.563-28 28-28h.223C30.219 19.025 45.5 5 64 5s33.781 14.025 35.777 32H100c15.438 0 28 12.561 28 28zm-50.828 37.172L68 111.344V61c0-2.209-1.789-4-4-4s-4 1.791-4 4v50.344l-9.172-9.172c-1.563-1.563-4.094-1.563-5.656 0s-1.563 4.094 0 5.656l16 16c.781.781 1.805 1.172 2.828 1.172s2.047-.391 2.828-1.172l16-16c1.563-1.563 1.563-4.094 0-5.656s-4.094-1.563-5.656 0z" fill="currentColor"></path>
+    </svg></button>
 
-<button id="shareBtn" class="btn" style="padding:8px 18px; font-size:16px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M271.176 121.396C120.971 129.218.176 253.891.176 406v106l37.925-88.29c44.854-89.692 133.847-147.041 233.075-152.314v121.318L511.824 196 271.176 0z" fill="#ffffff" opacity="1" data-original="#000000"></path></g></svg></button>
+<button id="shareBtn" class="btn radi" style="padding:10px 10px; font-size:16px;background: limegreen;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M271.176 121.396C120.971 129.218.176 253.891.176 406v106l37.925-88.29c44.854-89.692 133.847-147.041 233.075-152.314v121.318L511.824 196 271.176 0z" fill="#ffffff" opacity="1" data-original="#000000"></path></g></svg></button>
 
 
-    <button id="nextBtn" class="btn">&#9654;</button>
+    <button id="nextBtn" class="btn radi">&#9654;</button>
 
 
 
@@ -500,7 +770,7 @@ height: 50px;
     <form id="deleteForm" method="POST" action="/DeletImage">
         <input type="hidden" name="imagName" id="imagName" value="">
 
-        <button type="submit" class="btn" style=" background:red; color:white;padding:8px 18px;"
+        <button type="submit" class="btn radi" style=" background:#ff2147; color:white;padding:10px 10px;"
  onclick="return confirm('Are you sure you want to delete the selected images? This action cannot be undone.');"
 >
     <!-- icon -->
@@ -516,54 +786,6 @@ height: 50px;
 
 </div>
 
-<style>
-/* Modal background */
-  .modal-bg {
-    display: none; /* hidden by default */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 999;
-    justify-content: center;
-    align-items: flex-start; /* start from top */
-  }
-
-  /* Modal box */
-  .modal {
-    width: 300px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: -100%; /* start above the screen */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    animation: slideDown 0.5s forwards;
-  }
-
-  @keyframes slideDown {
-    to {
-      margin-top: 20%; /* final position (roughly vertical center) */
-    }
-  }
-
-  /* Close button */
-  .close-btn {
-    padding: 5px 5px;
-    background-color: red;
-    font-size: larger;
-    border-radius: 50%;
-    width: 15px;
-    height: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    cursor: pointer;
-  }
-  </style>
-
 
 
 
@@ -575,7 +797,7 @@ height: 50px;
     justify-content: space-between;
 ">
     <h2 style="margin: 0px;">Add New Album</h2>
-    <span class="close-btn" id="closeBtna">&times;</span>
+    <span class="close-btn btn radi" id="closeBtna">&times;</span>
     </div>
     
 <form method="GET" onsubmit="return createAlbum()">
@@ -628,10 +850,38 @@ function createAlbum() {
     }
   });
 
+const lightboxImage = document.getElementById('lightboxImage');
+const lightboxVideo = document.getElementById('lightboxVideo');
+const imagNameInput = document.getElementById('imagName');
+
+function openLightbox(fullPath, isVideo) {
+
+    // Update hidden input (delete / download)
+    imagNameInput.value = fullPath;
+
+    if (isVideo) {
+        // Show video
+        lightboxImage.style.display = 'none';
+        lightboxVideo.style.display = 'block';
+
+        lightboxVideo.src = fullPath;
+        lightboxVideo.load();
+    } else {
+        // Show image
+        lightboxVideo.pause();
+        lightboxVideo.src = '';
+        lightboxVideo.style.display = 'none';
+
+        lightboxImage.style.display = 'block';
+        lightboxImage.src = fullPath;
+    }
+
+
+    document.getElementById('lightboxOverlay').classList.add('active');
+}
 
 
 
-const lightboxImage = document.getElementById("lightboxImage");
 
 let scale = 1;       // Current zoom level
 let lastScale = 1;   // Used for pinch zoom
@@ -733,23 +983,6 @@ function resetImage() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 const imageCheckboxes = document.querySelectorAll('input[name="selected_images"]');
     const deletbar = document.getElementById('deletbar');
@@ -806,7 +1039,9 @@ checkboxes.forEach(cb => cb.addEventListener('change', () => {
     const closeBtn = document.getElementById('closeBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const images = Array.from(document.querySelectorAll('.gallery img'));
+    
+    const images = Array.from(document.querySelectorAll('input[name="selected_images"]'));
+    
     let currentIndex = 0;
 
 galleryLabels.forEach((label, index) => {
@@ -821,20 +1056,33 @@ galleryLabels.forEach((label, index) => {
         } else {
             // Normal mode: open fullscreen
             currentIndex = index;
-            showImage();
             overlay.classList.add('active');
         }
     });
 });
 
-    function showImage() {
-        lightboxImage.src = images[currentIndex].src;
-        document.getElementById('imagName').value = images[currentIndex].src;
-    }
+
+
+function isVideoFile(src) {
+
+//isVideoFile(images[currentIndex].src)
+//img.filename
+return src.includes('/static/Thumbnails/');
+
+
+}
+
+function isVideoFile(src) {
+    return /\.(mp4|mov|avi|webm|mkv)$/i.test(src);
+}
 
     closeBtn.onclick = () => {resetImage(); overlay.classList.remove('active');};
-    prevBtn.onclick = () => {resetImage(); currentIndex = (currentIndex - 1 + images.length) % images.length; showImage(); };
-    nextBtn.onclick = () => {resetImage(); currentIndex = (currentIndex + 1) % images.length; showImage(); };
+    prevBtn.onclick = () => {resetImage(); currentIndex = (currentIndex - 1 + images.length) % images.length; 
+    openLightbox('static/Uploads/' + images[currentIndex].value,isVideoFile(images[currentIndex].value)); };
+    nextBtn.onclick = () => {resetImage(); currentIndex = (currentIndex + 1) % images.length; 
+    openLightbox('static/Uploads/' + images[currentIndex].value,isVideoFile(images[currentIndex].value));
+    
+ };
 
 
 
@@ -853,24 +1101,43 @@ downloadSingleBtn.addEventListener('click', () => {
 });
 
 shareBtn.addEventListener('click', async () => {
-    const url = images[currentIndex].src;
+    const src = images[currentIndex].src;
+    const fullUrl = window.location.origin + '/' + src.replace(/^\/+/, '');
 
-    if (navigator.share) {
-        try {
+    try {
+        // Fetch file as Blob
+        const response = await fetch(fullUrl);
+        const blob = await response.blob();
+
+        // Detect filename
+        const filename = src.split('/').pop();
+
+        // Create File object
+        const file = new File([blob], filename, { type: blob.type });
+
+        // Check support
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
-                title: 'Shared Image',
-                text: 'Check out this image!',
-                url: url,
+                title: 'Shared Media',
+                files: [file],
             });
-            console.log('Image shared successfully');
-        } catch (err) {
-            alert('Share cancelled or failed');
+        } else {
+            alert('File sharing not supported on this browser');
         }
-    } else {
-        alert('Sharing not supported on this browser');
+
+    } catch (err) {
+        console.error(err);
+        alert('Sharing failed');
     }
 });
 
+
 </script>
+
+
+
+
+
+
 </body>
 </html>
