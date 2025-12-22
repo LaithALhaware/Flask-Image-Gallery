@@ -5,6 +5,12 @@ import zipfile
 from io import BytesIO
 from werkzeug.utils import secure_filename
 import shutil  # <-- needed for moving files
+from urllib.parse import unquote
+import subprocess
+
+
+import base64
+
 
 app = Flask(__name__)
 
@@ -49,68 +55,110 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('login')) 
     
-    
+VIDEO_EXTENSIONS = ['mp4', 'mov', 'avi', 'webm', 'mkv']
+
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=['GET', 'POST'])
+
+THUMBNAIL_FOLDER = os.path.join('static', 'Thumbnails')  # new folder for thumbnails
+
+def generate_video_thumbnail(video_path, thumb_path):
+    """Generate a thumbnail for a video using ffmpeg."""
+    os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
+    if not os.path.exists(thumb_path):
+        subprocess.run([
+            'ffmpeg', '-y', '-i', video_path, '-ss', '00:00:01.000', '-vframes', '1', thumb_path
+        ])
+
+
+
+def get_folder_size(path):
+    total = 0
+    for root, _, files in os.walk(path):
+        for f in files:
+            fp = os.path.join(root, f)
+            if os.path.exists(fp):
+                total += os.path.getsize(fp)
+    return total
+    
+def human_size(size):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024:
+            return f"{size:.2f} {unit}"
+        size /= 1024
+
+
 @login_required
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    album = request.args.get('album', None)  # optional album filter
+    album = request.args.get('album', '')  # optional album filter
 
-    # List all albums (create BASE_UPLOAD_FOLDER if it doesn't exist)
     os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
-    albums = [
-        d for d in os.listdir(BASE_UPLOAD_FOLDER)
-        if os.path.isdir(os.path.join(BASE_UPLOAD_FOLDER, d))
-    ]
+    os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)  # ensure thumbnail folder exists
 
-    # If user uploads files
+    albums = [d for d in os.listdir(BASE_UPLOAD_FOLDER) if os.path.isdir(os.path.join(BASE_UPLOAD_FOLDER, d))]
+
+    # Handle file uploads
     if request.method == 'POST' and 'file' in request.files:
         files = request.files.getlist('file')
         target_album = album or 'Default'
         album_path = os.path.join(BASE_UPLOAD_FOLDER, target_album)
-        os.makedirs(album_path, exist_ok=True)  # create album if not exists
+        os.makedirs(album_path, exist_ok=True)
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(album_path, filename))
         return redirect(url_for('index', album=album))
 
-    # Ensure the selected album folder exists even if empty
+    # Ensure selected album folder exists
     if album:
         album_path = os.path.join(BASE_UPLOAD_FOLDER, album)
         os.makedirs(album_path, exist_ok=True)
 
-    # Collect images
+    # Collect images/videos
     images = []
-    if album and album in os.listdir(BASE_UPLOAD_FOLDER):
-        # If a specific album is selected, show only its images
-        alb_path = os.path.join(BASE_UPLOAD_FOLDER, album)
+    selected_albums = [album] if album else albums
+    for alb in selected_albums:
+        alb_path = os.path.join(BASE_UPLOAD_FOLDER, alb)
         for f in os.listdir(alb_path):
-            if allowed_file(f):
-                images.append({'album': album, 'filename': f})
-    else:
-        # No album selected → show all images from all albums
-        for alb in albums:
-            alb_path = os.path.join(BASE_UPLOAD_FOLDER, alb)
-            for f in os.listdir(alb_path):
-                if allowed_file(f):
-                    images.append({'album': alb, 'filename': f})
+            ext = f.split('.')[-1].lower()
+            if allowed_file(f) or ext in VIDEO_EXTENSIONS:
+                file_data = {'album': alb, 'filename': f}
+
+                if ext in VIDEO_EXTENSIONS:
+                    # Thumbnail in separate folder
+                    thumb_filename = f"{alb}_{f.rsplit('.', 1)[0]}_thumb.jpg"
+                    thumb_path = os.path.join(THUMBNAIL_FOLDER, thumb_filename)
+                    generate_video_thumbnail(os.path.join(alb_path, f), thumb_path)
+                    file_data['thumbnail'] = os.path.join('Thumbnails', thumb_filename)
+                    file_data['is_video'] = True
+                else:
+                    file_data['thumbnail'] = f
+                    file_data['is_video'] = False
+
+                images.append(file_data)
 
     # Sort by modification time (newest first)
     images.sort(
         key=lambda x: os.path.getmtime(os.path.join(BASE_UPLOAD_FOLDER, x['album'], x['filename'])),
         reverse=True
     )
+    
+    
 
+    size_bytes = get_folder_size('static')
+    size_human = human_size(size_bytes)
+        
     return render_template(
         'index.html',
         images=images,
         albums=albums,
         current_album=album,
-        total_images=len(images)
+        total_images=len(images),
+        size_gb=size_human
     )
 
 
@@ -166,16 +214,14 @@ def DeletSelected():
 @login_required
 def DeletImage():
     imagName = request.form.get('imagName')
-    path_only = '/' + imagName.split('/', 3)[-1]
-    
-    # Remove the leading '/' and get the relative path
-    relative_path = path_only.lstrip('/')
+    imagName = unquote(imagName)
+
     
     # Full source path
-    src_path = os.path.join(os.getcwd(), relative_path)
+    src_path = os.path.join(os.getcwd(), imagName)
     
     if not os.path.exists(src_path):
-        return "File does not exist", 404
+        return "File does not exist : " + src_path, 404
 
     # Destination folder
     delet_folder = os.path.join(os.getcwd(), "static/Delet")
@@ -187,6 +233,28 @@ def DeletImage():
     
     return redirect(url_for('index'))
 
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    file = request.files.get('file')
+    album = request.form.get('album', 'Default')
+        
+    if not file:
+        return "No file", 400
+    # Sanitize filename
+    filename = secure_filename(file.filename)
+
+    # Ensure album folder exists
+    album_path = os.path.join(BASE_UPLOAD_FOLDER, str(album))
+    os.makedirs(album_path, exist_ok=True)
+
+    # Save the file
+    file_path = os.path.join(album_path, filename)
+    file.save(file_path)
+    return "OK"
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True, port=5002)
