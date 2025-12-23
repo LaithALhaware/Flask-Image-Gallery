@@ -99,7 +99,24 @@ def index():
     os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)  # ensure thumbnail folder exists
 
-    albums = [d for d in os.listdir(BASE_UPLOAD_FOLDER) if os.path.isdir(os.path.join(BASE_UPLOAD_FOLDER, d))]
+    albums_info = {}
+
+    for d in os.listdir(BASE_UPLOAD_FOLDER):
+        album_path = os.path.join(BASE_UPLOAD_FOLDER, d)
+        if os.path.isdir(album_path):
+            count = 0
+            size_bytes = 0
+            for f in os.listdir(album_path):
+                file_path = os.path.join(album_path, f)
+                ext = f.rsplit('.', 1)[-1].lower()
+                if allowed_file(f) or ext in VIDEO_EXTENSIONS:
+                    count += 1
+                    size_bytes += os.path.getsize(file_path)
+            albums_info[d] = {
+                'file_count': count,
+                'size_bytes': size_bytes,
+                'size_human': human_size(size_bytes)
+            }
 
     # Handle file uploads
     if request.method == 'POST' and 'file' in request.files:
@@ -120,7 +137,7 @@ def index():
 
     # Collect images/videos
     images = []
-    selected_albums = [album] if album else albums
+    selected_albums = [album] if album else albums_info
     for alb in selected_albums:
         alb_path = os.path.join(BASE_UPLOAD_FOLDER, alb)
         for f in os.listdir(alb_path):
@@ -155,7 +172,7 @@ def index():
     return render_template(
         'index.html',
         images=images,
-        albums=albums,
+        albums=albums_info,
         current_album=album,
         total_images=len(images),
         size_gb=size_human
@@ -193,7 +210,6 @@ def download():
 @login_required
 def DeletSelected():
     album = request.form.get('album', 'Default')
-    album_path = os.path.join(BASE_UPLOAD_FOLDER, album)
 
     delet_folder = os.path.join('static', 'Delet')  # preserve album structure
     os.makedirs(delet_folder, exist_ok=True)
@@ -201,6 +217,8 @@ def DeletSelected():
     selected_images = request.form.getlist('selected_images')
     for img in selected_images:
         img_path = os.path.join(BASE_UPLOAD_FOLDER, img)  # full path from static/Uploads/...
+        print('------------------------------------')
+        print(img_path)
         if os.path.exists(img_path):
             dest_subfolder = os.path.join('static', 'Delet')
             os.makedirs(dest_subfolder, exist_ok=True)
@@ -208,7 +226,41 @@ def DeletSelected():
             shutil.move(img_path, dest_path)  # move file
 
     return redirect(url_for('index', album=album))
-    
+
+
+
+
+@app.route('/MoveSelected', methods=['POST'])
+@login_required
+def MoveSelected():
+    target_album = request.form.get('target_album')
+    if not target_album:
+        return redirect(url_for('index'))
+
+    target_path = os.path.join(BASE_UPLOAD_FOLDER, target_album)
+    os.makedirs(target_path, exist_ok=True)
+
+    selected_files = request.form.getlist('selected_images')
+
+    for file_rel_path in selected_files:
+        # file_rel_path example: "Default/2.mp4"
+        src_file = os.path.join(BASE_UPLOAD_FOLDER, file_rel_path)
+
+        filename = os.path.basename(file_rel_path)
+        dst_file = os.path.join(target_path, filename)
+
+        print('--------------------------')
+        print(f'{target_album} From {src_file} To {dst_file}')
+
+        if os.path.exists(src_file):
+            shutil.move(src_file, dst_file)
+
+    return redirect(url_for('index', album=target_album))
+
+
+
+
+
 
 @app.route('/DeletImage', methods=['POST'])
 @login_required
