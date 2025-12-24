@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import shutil  # <-- needed for moving files
 from urllib.parse import unquote
 import subprocess
+from datetime import datetime
 
 
 import base64
@@ -100,23 +101,41 @@ def index():
     os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)  # ensure thumbnail folder exists
 
     albums_info = {}
-
+    
+    VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}  # extend as needed
+    IMAGE_EXTENSIONS = ALLOWED_EXTENSIONS - VIDEO_EXTENSIONS
+    
     for d in os.listdir(BASE_UPLOAD_FOLDER):
         album_path = os.path.join(BASE_UPLOAD_FOLDER, d)
         if os.path.isdir(album_path):
-            count = 0
+            video_count = 0
+            photo_count = 0
             size_bytes = 0
+
             for f in os.listdir(album_path):
                 file_path = os.path.join(album_path, f)
                 ext = f.rsplit('.', 1)[-1].lower()
-                if allowed_file(f) or ext in VIDEO_EXTENSIONS:
-                    count += 1
+
+                if ext in IMAGE_EXTENSIONS:  # assume this is for photos
+                    photo_count += 1
                     size_bytes += os.path.getsize(file_path)
+                elif ext in VIDEO_EXTENSIONS:
+                    video_count += 1
+                    size_bytes += os.path.getsize(file_path)
+
+            # Get folder creation/modification time
+            folder_time = os.path.getmtime(album_path)  # or getctime()
+            folder_datetime = datetime.fromtimestamp(folder_time).strftime('%Y-%m-%d %H:%M:%S')
+
             albums_info[d] = {
-                'file_count': count,
+                'photo_count': photo_count,
+                'video_count': video_count,
+                'file_count': photo_count + video_count,
                 'size_bytes': size_bytes,
-                'size_human': human_size(size_bytes)
+                'size_human': human_size(size_bytes),
+                'created_time': folder_datetime
             }
+
 
     # Handle file uploads
     if request.method == 'POST' and 'file' in request.files:
@@ -167,16 +186,72 @@ def index():
     
 
     size_bytes = get_folder_size('static')
-    size_human = human_size(size_bytes)
-        
+    size_human = (size_bytes / (1024 ** 3))
+   
+    # Path to check, "/" is root
+    path = "/"
+
+    # Get disk usage statistics
+    total, used, free = shutil.disk_usage(path)
+
+    # Convert bytes to gigabytes
+    total_gb = int(total / (1024 ** 3))
+    used_gb = int(used / (1024 ** 3))
+    free_gb = int(free / (1024 ** 3))
+   
+   
+   
     return render_template(
         'index.html',
         images=images,
         albums=albums_info,
         current_album=album,
         total_images=len(images),
-        size_gb=size_human
+        size_gb=size_human,
+        size_unt=human_size(size_bytes),
+        total_gb=total_gb,
+        used_gb=used_gb,
+        free_gb=free_gb
     )
+
+
+
+
+@app.route('/change_name', methods=['POST'])
+@login_required
+def change_name():
+    # Get folder names from form
+    old_name = request.form.get('old_name')
+    new_name = request.form.get('new_name')
+
+    # Full paths
+    old_path = os.path.join('static/Uploads', old_name)
+    new_path = os.path.join('static/Uploads', new_name)
+
+    # Basic checks
+    if not old_name or not new_name:
+        flash("Both old and new folder names are required.")
+        return redirect(url_for('index'))
+
+    if not os.path.exists(old_path):
+        flash(f"Folder '{old_name}' does not exist.")
+        return redirect(url_for('index'))
+
+    if os.path.exists(new_path):
+        flash(f"Folder '{new_name}' already exists.")
+        return redirect(url_for('index'))
+
+    # Rename folder
+    try:
+        os.rename(old_path, new_path)
+        flash(f"Folder renamed to '{new_name}' successfully!")
+    except Exception as e:
+        flash(f"Error renaming folder: {e}")
+
+    return redirect(url_for('index'))
+
+
+
 
 
 @app.route('/download', methods=['POST'])
@@ -309,4 +384,4 @@ def upload():
     
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(host="0.0.0.0", debug=True, port=5002)
