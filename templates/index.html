@@ -1432,13 +1432,18 @@ imageCheckboxes.forEach(cb => {
 });
 
 
-    const toggleSelectBtn = document.getElementById('toggleSelectBtn');
     const selectBar = document.getElementById('selectBar');
     const gallery = document.querySelector('.gallery');
     const galleryLabels = document.querySelectorAll('.gallery label.gallery-item');
     const checkboxes = document.querySelectorAll('.gallery input[type="checkbox"]');
     let selectMode = false;
 
+
+
+{% if images %}
+    const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+    
+    
 toggleSelectBtn.addEventListener('click', () => {
     selectMode = !selectMode;
     
@@ -1457,6 +1462,13 @@ toggleSelectBtn.addEventListener('click', () => {
         checkboxes.forEach(cb => cb.checked = false);
     }
 });
+{% endif %}
+
+
+
+
+
+
 
 // Show or hide Download button based on selection
 checkboxes.forEach(cb => cb.addEventListener('change', () => {
