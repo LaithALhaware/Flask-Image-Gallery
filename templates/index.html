@@ -49,7 +49,8 @@ document.addEventListener('wheel', function (e) {
 
         .upload-box {
 
-            padding: 20px 5px;
+padding: 8px 16px calc(env(safe-area-inset-bottom) + 8px);
+    height: 50px;
             border-bottom: 1px solid #ddd;
             text-align: center;
     display: flex;
@@ -60,12 +61,15 @@ position: fixed;
     z-index: 10;
     width: -webkit-fill-available;
 margin-top: -60px;
-    height: 20px;
+
     
         background: rgb(255 255 255 / 50%);
     backdrop-filter: blur(20px);
-    
+        border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
         }
+        
+        
         .upload-box input[type="file"] {
             margin: 12px 0;
             cursor: pointer;
@@ -89,6 +93,14 @@ margin-top: -60px;
 border-radius: 10px;
     padding: 10px 10px;
 display: flex;vertical-align: middle;
+
+    /* Mobile-specific: remove tap highlight */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    
         }
         .radi {
         border-radius: 999999px;
@@ -100,6 +112,23 @@ display: flex;vertical-align: middle;
         .btn:disabled {
             background: #a0a0a0;
             cursor: not-allowed;
+        }
+        
+        
+        
+.btn:focus,
+.btn:active {
+    outline: none;                 /* Remove outline if desired */
+}
+
+a {
+    /* Mobile-specific: remove tap highlight */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    
         }
 
 .upload-btn svg {
@@ -174,10 +203,7 @@ display: flex;vertical-align: middle;
 
 
         #closeBtn {
-    top: 13px;
-    right: 19px;
     z-index: 999999;
-    position: fixed;
     font-size: x-large;
     width: auto;
     padding: 5px 12px;
@@ -235,7 +261,7 @@ display: flex;vertical-align: middle;
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  transition: 0.4s;
+  transition: 0.3s;
   border-radius: 34px;
 }
 
@@ -247,7 +273,7 @@ display: flex;vertical-align: middle;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: 0.4s;
+  transition: 0.3s;
   border-radius: 50%;
 }
 
@@ -282,7 +308,8 @@ input:checked + .slider:before {
     z-index: 2000;
     align-items: center;
 height: 50px;
-
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
 }
 
 .ios-btn-pill {
@@ -326,23 +353,51 @@ height: 50px;
     justify-content: center;
     align-items: flex-start; /* start from top */
     backdrop-filter: blur(10px);
-  }
+        transition: opacity 0.3s ease;
+}
 
-  /* Modal box */
-  .modal {
-    width: 300px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: -100%; /* start above the screen */
-    animation: slideDown 0.5s forwards;
-  }
+/* Modal box */
+.modal {
+  width: -webkit-fill-available;
+  background-color: white;
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  transform: translateY(100%);
+  animation: slideUp 0.3s ease forwards;
+}
 
-  @keyframes slideDown {
-    to {
-      margin-top: 20%; /* final position (roughly vertical center) */
-    }
+/* OPEN animation (bottom → up) */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
   }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* CLOSE animation (up → bottom) */
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Apply when closing */
+.modal.closing {
+  animation: slideDown 0.3s ease forwards;
+}
+
+
+
+
+
 
   /* Close button */
   .close-btn {
@@ -366,12 +421,12 @@ height: 50px;
         content: "";
         position: fixed;
         inset: 0;
-        backdrop-filter: blur(6px);
-        background: rgba(0,0,0,0.1);
+        backdrop-filter: blur(10px);
+        background: rgba(0,0,0,0.2);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
-        z-index: 999;
+        z-index: 2500;
     }
 
     body.blur::before {
@@ -397,6 +452,8 @@ height: 50px;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
+    border-bottom-right-radius: 25px;
+    border-top-right-radius: 25px;
     }
 
     #sidebar.active {
@@ -417,7 +474,7 @@ height: 50px;
     }
 
     #sidebar a:hover {
-        color: #00c3ff;
+        color: #ccc;
     }
 
 
@@ -470,7 +527,20 @@ height: 50px;
         </a>
     {% endfor %}
     </div>
-    <center>Totalling {{size_gb}}</center>
+    
+    <a href="{{ url_for('logout') }}" class="" style="border: 1px solid #ff214757;margin-bottom: 15px;color: #ff2147;backdrop-filter: contrast(0.5);justify-content: flex-start;">
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 64 64" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(1.0799999999999994,0,0,1.0799999999999994,-2.5559093093871894,-2.5551998901366986)"><g data-name="Layer 20"><path d="M52.62 14.37a4.59 4.59 0 0 0-3.51-1.47 4.67 4.67 0 0 0-3.47 1.69 4.65 4.65 0 0 0 .19 6.07 18.78 18.78 0 0 1-15.49 31.46 18.77 18.77 0 0 1-12.13-31.44 4.65 4.65 0 0 0-3.31-7.78 4.56 4.56 0 0 0-3.53 1.48 28 28 0 0 0-7.16 23 28.3 28.3 0 0 0 26.73 24h1.07a28.07 28.07 0 0 0 20.61-47.01z" fill="#ff2147" opacity="1" data-original="#000000" class=""></path><path d="M32 34.92a4.65 4.65 0 0 0 4.65-4.65V7.15a4.65 4.65 0 0 0-9.3 0v23.12A4.65 4.65 0 0 0 32 34.92z" fill="#ff2147" opacity="1" data-original="#000000" class=""></path></g></g></svg>  &nbsp;Logout
+        </a>
+        
+    
+   <v  style="margin-top: 15px;">Totalling <b>{{size_unt}}</b></v>
+   <v  style="">Free Space <b>{{free_gb}} GB</b></v>
+
+<div class="bar-containeralbum" style="height: 10px;margin-top: 5px;">
+  <div class="bar-photoalbum" style="width: calc({{size_gb}}/ {{free_gb}} * 100%);background-color: green;"></div>
+</div>
+
+
 
 </div>
 
@@ -532,15 +602,21 @@ height: 50px;
 
 
 
-<header style="display: flex;align-items: center;width: 33%;
-    justify-content: center;">
+<header style="display: flex;align-items: center;width: 33%;">
 
 <img src="static/Icon.svg" width="50px">&nbsp;
-<div style="display: flex;flex-direction: column;align-items: flex-start;">{% if not current_album %}
+<div style="display: flex;flex-direction: column;align-items: flex-start;width: 80%;">
+<v style="
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: -webkit-left;
+">{% if not current_album %}
     Gallery
 {% else %}
     {{ current_album }}
-{% endif %}
+{% endif %}</v>
 <sub style="font-size: small;">{{ total_images }} IMG</sub>
 </div>
 </header>
@@ -556,7 +632,11 @@ height: 50px;
  
  &nbsp;
 {% endif %}
-<a class="btn" href="{{ url_for('logout') }}" style="padding: 0px;background: unset;" ><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="80" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><g data-name="Layer 2"><circle cx="256" cy="256" r="256" fill="#ff2147" opacity="1" data-original="#ff2147" class=""></circle><g fill="#fff"><rect width="52.31" height="134.46" x="229.84" y="116" rx="26.16" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></rect><path d="M304 178.56a22.93 22.93 0 0 0 6.18 26.07 82.85 82.85 0 1 1-108.49.13 23.1 23.1 0 0 0 6.31-26.21c-5.93-14.43-24.3-19-36.11-8.8a128.75 128.75 0 1 0 168.34.11 23 23 0 0 0-36.23 8.7z" fill="#ffffff" opacity="1" data-original="#ffffff" class=""></path></g></g></g></svg></a>
+
+
+<button onclick="openModal('infoAlbum')" type="button" class="btn radi" style="background: teal;">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 111.577 111.577" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="m78.962 99.536-1.559 6.373c-4.677 1.846-8.413 3.251-11.195 4.217-2.785.969-6.021 1.451-9.708 1.451-5.662 0-10.066-1.387-13.207-4.142-3.141-2.766-4.712-6.271-4.712-10.523 0-1.646.114-3.339.351-5.064.239-1.727.619-3.672 1.139-5.846l5.845-20.688c.52-1.981.962-3.858 1.316-5.633.359-1.764.532-3.387.532-4.848 0-2.642-.547-4.49-1.636-5.529-1.089-1.036-3.167-1.562-6.252-1.562-1.511 0-3.064.242-4.647.71-1.59.47-2.949.924-4.09 1.346l1.563-6.378c3.829-1.559 7.489-2.894 10.99-4.002 3.501-1.111 6.809-1.667 9.938-1.667 5.623 0 9.962 1.359 13.009 4.077 3.047 2.72 4.57 6.246 4.57 10.591 0 .899-.1 2.483-.315 4.747-.21 2.269-.601 4.348-1.171 6.239l-5.82 20.605c-.477 1.655-.906 3.547-1.279 5.676-.385 2.115-.569 3.731-.569 4.815 0 2.736.61 4.604 1.833 5.597 1.232.993 3.354 1.487 6.368 1.487 1.415 0 3.025-.251 4.814-.744 1.784-.493 3.085-.926 3.892-1.305zm1.476-86.506c0 3.59-1.353 6.656-4.072 9.177-2.712 2.53-5.98 3.796-9.803 3.796-3.835 0-7.111-1.266-9.854-3.796-2.738-2.522-4.11-5.587-4.11-9.177 0-3.583 1.372-6.654 4.11-9.207C59.447 1.274 62.729 0 66.563 0c3.822 0 7.091 1.277 9.803 3.823 2.721 2.553 4.072 5.625 4.072 9.207z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path></g></svg>
+</button>
 
     </div>
 
@@ -761,9 +841,26 @@ async function uploadSingleFile(file) {
 <!-- Lightbox -->
 <div id="lightboxOverlay">
 
+
+<div style="position: fixed;top: 13px;max-width: -webkit-fill-available;display: flex;align-items: center;justify-content: space-between;margin: 0px 19px;width: -webkit-fill-available;">
+<v id="nameIMG" style="
+    width: calc(100% - 100px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: -webkit-left;
+    font-weight: bold;
+    color: #fff;
+    display: flex;
+    align-items: center;
+"></v>
+<button id="closeBtn" class="btn radi" aria-label="Close">&times;</button>
+</div>
+
+
     <div style="position:relative; text-align:center;">
 
-<button id="closeBtn" class="btn radi" aria-label="Close">&times;</button>
+
 
 
 <img id="lightboxImage" src="" alt="Fullscreen Image">
@@ -816,6 +913,15 @@ async function uploadSingleFile(file) {
 </div>
 
 
+
+
+
+
+
+
+
+
+
 <div class="modal-bg" id="MoveSelected">
   <div class="modal">
 <div style="
@@ -824,7 +930,7 @@ async function uploadSingleFile(file) {
     justify-content: space-between;
 ">
     <h2 style="margin: 0px;margin: 0px;display: flex;align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 513 513" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M146 267.519H80c-33.137 0-60-26.863-60-60V70.482c0-27.614 22.386-50 50-50h42.912c27.64 0 50.024 22.448 49.944 50.088v0H226c33.137 0 60 26.863 60 60v35.912m-59 137v-8c0-27.614 22.386-50 50-50h42.912c27.64 0 50.024 22.448 49.944 50.088v0H433c33.137 0 60 26.863 60 60v76.928c0 33.131-26.853 59.991-59.984 60l-100.016.02m-99-.036 26.289-26.166c15.615-15.567 15.615-40.806 0-56.373L234 384.482m-154-39v41c0 27.614 22.386 50 50 50h63" style="stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" fill="none" stroke="#000" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" data-original="#000" opacity="1"></path></g></svg>&nbsp;Move Selected To</h2>
-    <span class="close-btn btn radi" onclick="closeModal('MoveSelected')">&times;</span>
+    <span class="close-btn btn radi" onclick="closeModal(this)">&times;</span>
     </div>
   
   
@@ -913,7 +1019,7 @@ function moveSelected() {
     justify-content: space-between;
 ">
     <h2 style="margin: 0px;margin: 0px;display: flex;align-items: center;">Add New Album</h2>
-    <span class="close-btn btn radi" onclick="closeModal('AddNewAlbum')">&times;</span>
+    <span class="close-btn btn radi" onclick="closeModal(this)">&times;</span>
     </div>
     
 <form method="GET" onsubmit="return createAlbum()">
@@ -946,27 +1052,226 @@ function createAlbum() {
   </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="modal-bg" id="infoAlbum">
+  <div class="modal">
+<div style="
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+">
+    <h2 style="margin: 0px;margin: 0px;display: flex;align-items: center;">Album info</h2>
+    <span class="close-btn btn radi" onclick="closeModal(this)">&times;</span>
+    </div>
+    
+    <br>
+    Name : <v id="AlbumName"><b>{% if not current_album %}
+    Gallery
+{% else %}
+{{ current_album }}
+{% endif %}</b></v><br>
+   
+   
+   
+   
+
+   
+   
+   
+{% if current_album %}
+Creation Date : <v id="AlbumSize"><b>
+    {{ albums[current_album]['created_time'] if current_album in albums else 'N/A' }}
+    </b></v><br>
+{% endif %}
+
+
+<hr style="border: 1px solid #ddd;margin-top: 1em;margin-bottom: 1em;">
+
+
+
+
+<style>
+  .bar-containeralbum {
+    width: 100%;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+        background-color: #e0e0e0;
+
+  }
+ 
+  .bar-photoalbum {
+    background-color: #2196f3; /* blue */
+    height: 100%;
+  }
+  .bar-videoalbum {
+    background-color: #ff9800; /* orange */
+    height: 100%;
+  }
+  .labelalbum {
+    margin-top: 10px;
+  }
+</style>
+
+
+<h3 style="margin-bottom: 10px;margin-top: 10px;">Storage Usage</h3>
+<div class="bar-containeralbum">
+  <div class="bar-photoalbum" style="width: calc({% if not current_album %}
+    {{ albums.values() | map(attribute='photo_count') | sum if albums is defined else 0 }}
+{% else %}
+    {{ albums[current_album]['photo_count'] if current_album in albums else '0' }}
+{% endif %} / {{total_images}} * 100%);"></div>
+  <div class="bar-videoalbum" style="width: calc({% if not current_album %}
+    {{ albums.values() | map(attribute='video_count') | sum if albums is defined else 0 }}
+{% else %}
+    {{ albums[current_album]['video_count'] if current_album in albums else '0' }}
+{% endif %} / {{total_images}} * 100%);"></div>
+</div>
+
+<div class="labelalbum">
+  <span style="color:#2196f3"><b>Photos : {% if not current_album %}
+{{ albums.values() | map(attribute='photo_count') | sum if albums is defined else 0 }}
+
+{% else %}
+    {{ albums[current_album]['photo_count'] if current_album in albums else '0' }}
+{% endif %}</span></b> |
+  <span style="color:#ff9800"><b>Video : {% if not current_album %}
+{{ albums.values() | map(attribute='video_count') | sum if albums is defined else 0 }}
+
+{% else %}
+    {{ albums[current_album]['video_count'] if current_album in albums else '0' }}
+{% endif %}</span></b> |
+  Total Size : <b>{% if not current_album %}
+    {{ size_unt if size_unt is defined else '0' }}
+{% else %}
+    {{ albums[current_album]['size_human'] if current_album in albums else '0' }}
+{% endif %}</b>
+</div>
+
+
+
+
+    Total Files : <v id="TotalImages"><b>{{ total_images }} Files</b></v><br>
+
+
+
+{% if current_album %}
+<hr style="border: 1px solid #ddd;margin-top: 1em;margin-bottom: 1em;">
+
+<form method="POST" action="/change_name">
+
+  <input type="hidden" id="old_name" name="old_name" placeholder="Current folder name" value="{{ current_album }}" required>
+
+  <label for="new_name">Rename Album : </label>
+  <input type="text" id="new_name" name="new_name" placeholder="New folder name" style="
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border-radius: 10px;
+    width: 100%;
+    padding: 12px 12px 12px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;    
+" required>
+
+  <button type="submit" class="btn" style="justify-self: right;">Rename Album</button>
+</form>
+   
+   
+   
+    
+{% endif %}
+
+
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script>
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.style.display = 'flex';
 }
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) modal.style.display = 'none';
+function closeModal(el) {
+  const modalBg = el.closest('.modal-bg');
+  const modal = modalBg.querySelector('.modal');
+
+  modal.classList.add('closing');
+
+  setTimeout(() => {
+    modalBg.style.display = 'none';
+    modal.classList.remove('closing');
+    document.body.classList.remove("blur");
+  }, 400);
 }
 
-// Close when clicking outside modal
+
 window.addEventListener('click', e => {
-  document.querySelectorAll('.modal-bg').forEach(modal => {
-    if (e.target === modal) modal.style.display = 'none';
-    //document.getElementById('sidebar').classList.remove('active');
+  document.querySelectorAll('.modal-bg').forEach(bg => {
+    if (e.target === bg) {
+      const modal = bg.querySelector('.modal');
+      modal.classList.add('closing');
+
+      setTimeout(() => {
+        bg.style.display = 'none';
+        modal.classList.remove('closing');
+      }, 400);
+    }
   });
+
+  
 });
 
 
-
+document.body.addEventListener('click', e => {
+  if (document.body.classList.contains('blur') && e.target === document.body) {
+    document.getElementById("sidebar").classList.remove("active");
+    document.body.classList.remove("blur");
+  }
+});
 
 
 const lightboxImage = document.getElementById('lightboxImage');
@@ -978,6 +1283,8 @@ function openLightbox(fullPath, isVideo) {
 if(selectMode == false){
     // Update hidden input (delete / download)
     imagNameInput.value = fullPath;
+ 
+document.getElementById('nameIMG').innerHTML =  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(1,0,0,1,0,15)"><path fill="#eceff1" d="M512 58.668v266.664c0 32.43-26.238 58.668-58.668 58.668H58.668c-5.336 0-10.453-.64-15.148-2.133C18.348 375.254 0 352.426 0 325.332V58.668C0 26.238 26.238 0 58.668 0h394.664C485.762 0 512 26.238 512 58.668zm0 0" opacity="1" data-original="#eceff1" class=""></path><path fill="#ffc107" d="M149.332 106.668c0 23.562-19.102 42.664-42.664 42.664C83.102 149.332 64 130.23 64 106.668 64 83.102 83.102 64 106.668 64c23.562 0 42.664 19.102 42.664 42.668zm0 0" opacity="1" data-original="#ffc107"></path><path fill="#388e3c" d="M512 276.055v49.277c0 32.43-26.238 58.668-58.668 58.668H58.668c-5.336 0-10.453-.64-15.148-2.133l260.695-260.695c14.504-14.504 38.398-14.504 52.906 0zm0 0" opacity="1" data-original="#388e3c"></path><path fill="#4caf50" d="M363.945 384H58.668c-5.336 0-10.453-.64-15.148-2.133C18.348 375.254 0 352.426 0 325.332v-6.613l122.879-122.88c14.508-14.507 38.402-14.507 52.906 0zm0 0" opacity="1" data-original="#4caf50" class=""></path></g></svg>&nbsp;' + fullPath.split('/').pop();
 
     if (isVideo) {
         // Show video
