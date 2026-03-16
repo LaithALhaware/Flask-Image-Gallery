@@ -1,5 +1,5 @@
 
-## 📸 Flask Image Gallery
+## 📸 Home Server for Storing Images with a Gallery
 
 ![Alt Text](Main.png)
 
@@ -64,6 +64,7 @@ Flask-Image-Gallery/
 ├── app.py                 # Flask backend
 ├── templates/
 │   └── index.html         # Gallery UI
+│   └── Login.html         # Login UI
 ├── static/
 │   ├── Uploads/           # Uploaded images
 │   └── screenshots/       # Screenshots for README
