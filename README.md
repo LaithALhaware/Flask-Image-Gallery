@@ -33,7 +33,7 @@
 
 ```bash
 git clone https://github.com/LaithALhaware/Gallery-Home-Server.git
-cd Flask-Image-Gallery
+cd Gallery-Home-Server
 ```
 
 2️⃣ **Create a virtual environment & install dependencies**
