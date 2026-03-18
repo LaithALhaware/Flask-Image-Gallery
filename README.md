@@ -53,7 +53,7 @@ python app.py
 4️⃣ **Open in browser**
 
 ```
-http://127.0.0.1:5022/
+http://127.0.0.1:5002/
 ```
 
 ---
@@ -61,7 +61,7 @@ http://127.0.0.1:5022/
 ### 📂 Project Structure
 
 ```
-Flask-Image-Gallery/
+Gallery-Home-Server/
 ├── app.py                 # Flask backend
 ├── templates/
 │   └── index.html         # Gallery UI
