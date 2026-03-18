@@ -2,6 +2,7 @@
 ## 📸 Home Server for Storing Images with a Gallery
 
 ![Alt Text](Main.png)
+![Alt Text]('Screenshot from 2026-03-18 09-56-29.png')
 
 🖼️ A clean and responsive **Flask-based image gallery** where you can **upload**, **view**, **download (📥)**, and **delete (🗑️)** images. Supports **bulk selection** and **zip downloads** with a modern UI.
 
@@ -31,7 +32,7 @@
 1️⃣ **Clone the repository**
 
 ```bash
-git clone https://github.com/LaithALhaware/Flask-Image-Gallery.git
+git clone https://github.com/LaithALhaware/Gallery-Home-Server.git
 cd Flask-Image-Gallery
 ```
 
