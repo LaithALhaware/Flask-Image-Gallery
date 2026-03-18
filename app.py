@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, session, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, session, flash, jsonify
 from functools import wraps
 import os
 import zipfile
@@ -91,40 +91,96 @@ def human_size(size):
             return f"{size:.2f} {unit}"
         size /= 1024
 
+PER_PAGE = 25
 
+
+@app.route("/load_more")
 @login_required
+def load_more():
+
+    album = request.args.get("album", "")
+    page = int(request.args.get("page", 1))
+
+    start = (page - 1) * PER_PAGE
+    end = start + PER_PAGE
+
+    VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
+
+    images = []
+
+    selected_albums = [album] if album else os.listdir(BASE_UPLOAD_FOLDER)
+
+    for alb in selected_albums:
+
+        alb_path = os.path.join(BASE_UPLOAD_FOLDER, alb)
+
+        if not os.path.isdir(alb_path):
+            continue
+
+        for f in os.listdir(alb_path):
+
+            ext = f.split('.')[-1].lower()
+
+            if allowed_file(f) or ext in VIDEO_EXTENSIONS:
+
+                images.append({
+                    "album": alb,
+                    "filename": f,
+                    "is_video": ext in VIDEO_EXTENSIONS
+                })
+
+    images.sort(
+        key=lambda x: os.path.getmtime(
+            os.path.join(BASE_UPLOAD_FOLDER, x['album'], x['filename'])
+        ),
+        reverse=True
+    )
+
+    return jsonify(images[start:end])
+
+
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
-    album = request.args.get('album', '')  # optional album filter
+
+    album = request.args.get('album', '')
+    page = int(request.args.get("page", 1))
 
     os.makedirs(BASE_UPLOAD_FOLDER, exist_ok=True)
-    os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)  # ensure thumbnail folder exists
+    os.makedirs(THUMBNAIL_FOLDER, exist_ok=True)
 
     albums_info = {}
-    
-    VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}  # extend as needed
+
+    VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'mkv'}
     IMAGE_EXTENSIONS = ALLOWED_EXTENSIONS - VIDEO_EXTENSIONS
-    
+
+    # Scan albums
     for d in os.listdir(BASE_UPLOAD_FOLDER):
+
         album_path = os.path.join(BASE_UPLOAD_FOLDER, d)
+
         if os.path.isdir(album_path):
+
             video_count = 0
             photo_count = 0
             size_bytes = 0
 
             for f in os.listdir(album_path):
+
                 file_path = os.path.join(album_path, f)
+
                 ext = f.rsplit('.', 1)[-1].lower()
 
-                if ext in IMAGE_EXTENSIONS:  # assume this is for photos
+                if ext in IMAGE_EXTENSIONS:
                     photo_count += 1
                     size_bytes += os.path.getsize(file_path)
+
                 elif ext in VIDEO_EXTENSIONS:
                     video_count += 1
                     size_bytes += os.path.getsize(file_path)
 
-            # Get folder creation/modification time
-            folder_time = os.path.getmtime(album_path)  # or getctime()
+            folder_time = os.path.getmtime(album_path)
+
             folder_datetime = datetime.fromtimestamp(folder_time).strftime('%Y-%m-%d %H:%M:%S')
 
             albums_info[d] = {
@@ -136,74 +192,104 @@ def index():
                 'created_time': folder_datetime
             }
 
-
-    # Handle file uploads
+    # Upload files
     if request.method == 'POST' and 'file' in request.files:
+
         files = request.files.getlist('file')
+
         target_album = album or 'Default'
+
         album_path = os.path.join(BASE_UPLOAD_FOLDER, target_album)
+
         os.makedirs(album_path, exist_ok=True)
+
         for file in files:
+
             if file and allowed_file(file.filename):
+
                 filename = secure_filename(file.filename)
+
                 file.save(os.path.join(album_path, filename))
+
         return redirect(url_for('index', album=album))
 
-    # Ensure selected album folder exists
+    # Ensure album exists
     if album:
         album_path = os.path.join(BASE_UPLOAD_FOLDER, album)
         os.makedirs(album_path, exist_ok=True)
 
-    # Collect images/videos
+    # Collect images
     images = []
+
     selected_albums = [album] if album else albums_info
+
     for alb in selected_albums:
+
         alb_path = os.path.join(BASE_UPLOAD_FOLDER, alb)
+
+        if not os.path.isdir(alb_path):
+            continue
+
         for f in os.listdir(alb_path):
+
             ext = f.split('.')[-1].lower()
+
             if allowed_file(f) or ext in VIDEO_EXTENSIONS:
-                file_data = {'album': alb, 'filename': f}
+
+                file_data = {
+                    'album': alb,
+                    'filename': f
+                }
 
                 if ext in VIDEO_EXTENSIONS:
-                    # Thumbnail in separate folder
-                    thumb_filename = f"{alb}_{f.rsplit('.', 1)[0]}_thumb.jpg"
+
+                    thumb_filename = f"{alb}_{f.rsplit('.',1)[0]}_thumb.jpg"
                     thumb_path = os.path.join(THUMBNAIL_FOLDER, thumb_filename)
-                    generate_video_thumbnail(os.path.join(alb_path, f), thumb_path)
+
+                    generate_video_thumbnail(
+                        os.path.join(alb_path, f),
+                        thumb_path
+                    )
+
                     file_data['thumbnail'] = os.path.join('Thumbnails', thumb_filename)
                     file_data['is_video'] = True
+
                 else:
+
                     file_data['thumbnail'] = f
                     file_data['is_video'] = False
 
                 images.append(file_data)
 
-    # Sort by modification time (newest first)
+    # Sort newest first
     images.sort(
-        key=lambda x: os.path.getmtime(os.path.join(BASE_UPLOAD_FOLDER, x['album'], x['filename'])),
+        key=lambda x: os.path.getmtime(
+            os.path.join(BASE_UPLOAD_FOLDER, x['album'], x['filename'])
+        ),
         reverse=True
     )
-    
-    
 
+    # Pagination
+    start = (page - 1) * PER_PAGE
+    end = start + PER_PAGE
+
+    images_page = images[start:end]
+
+    # Disk info
     size_bytes = get_folder_size('static')
+
     size_human = (size_bytes / (1024 ** 3))
-   
-    # Path to check, "/" is root
-    path = "/"
 
-    # Get disk usage statistics
-    total, used, free = shutil.disk_usage(path)
+    total, used, free = shutil.disk_usage("/")
 
-    # Convert bytes to gigabytes
     total_gb = int(total / (1024 ** 3))
     used_gb = int(used / (1024 ** 3))
     free_gb = int(free / (1024 ** 3))
-   
-   
-   
+
     return render_template(
         'index.html',
-        images=images,
+        images=images_page,
+        page=page,
         albums=albums_info,
         current_album=album,
         total_images=len(images),
@@ -213,7 +299,6 @@ def index():
         used_gb=used_gb,
         free_gb=free_gb
     )
-
 
 
 
