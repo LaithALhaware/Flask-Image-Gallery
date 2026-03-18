@@ -8,10 +8,9 @@ import shutil  # <-- needed for moving files
 from urllib.parse import unquote
 import subprocess
 from datetime import datetime
-
-
+from PIL import Image
 import base64
-
+import random
 
 app = Flask(__name__)
 
@@ -27,6 +26,7 @@ USERS = {
     "admin": "123456",
     "user": "0000"
 }
+
 
 def login_required(f):
     @wraps(f)
@@ -75,6 +75,24 @@ def generate_video_thumbnail(video_path, thumb_path):
         ])
 
 
+def create_thumbnail(input_image_name, alb, size=(200, 200)):
+    input_path = os.path.join(BASE_UPLOAD_FOLDER, alb, input_image_name)
+    output_dir = os.path.join(THUMBNAIL_FOLDER, alb)
+    output_path = os.path.join(output_dir, input_image_name)
+
+    # ✅ Create album folder if not exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    # ✅ Check if thumbnail already exists
+    if os.path.exists(output_path):
+        return
+
+    # Create thumbnail
+    img = Image.open(input_path).convert("RGB")
+    img.thumbnail(size)
+    img.save(output_path, "JPEG", quality=40)
+
+
 
 def get_folder_size(path):
     total = 0
@@ -91,7 +109,7 @@ def human_size(size):
             return f"{size:.2f} {unit}"
         size /= 1024
 
-PER_PAGE = 25
+PER_PAGE = 30
 
 
 @app.route("/load_more")
@@ -122,7 +140,7 @@ def load_more():
             ext = f.split('.')[-1].lower()
 
             if allowed_file(f) or ext in VIDEO_EXTENSIONS:
-
+                create_thumbnail(f,alb)
                 images.append({
                     "album": alb,
                     "filename": f,
@@ -183,13 +201,31 @@ def index():
 
             folder_datetime = datetime.fromtimestamp(folder_time).strftime('%Y-%m-%d %H:%M:%S')
 
+
+            # 🔥 Get preview images (max 4)
+            all_files = [
+                f for f in os.listdir(album_path)
+                if allowed_file(f)
+            ]
+
+            preview_images = random.sample(all_files, min(4, len(all_files)))
+
+            # Convert to thumbnail names
+            preview_thumbs = []
+            for f in preview_images:
+                name = os.path.splitext(f)[0] + ".jpg"
+                preview_thumbs.append(os.path.join(d, name))  # album/image.jpg
+
             albums_info[d] = {
                 'photo_count': photo_count,
                 'video_count': video_count,
                 'file_count': photo_count + video_count,
                 'size_bytes': size_bytes,
                 'size_human': human_size(size_bytes),
-                'created_time': folder_datetime
+                'created_time': folder_datetime,
+
+                # ✅ NEW
+                'preview_images': preview_thumbs
             }
 
     # Upload files
@@ -240,6 +276,7 @@ def index():
                     'album': alb,
                     'filename': f
                 }
+                create_thumbnail(f,alb)
 
                 if ext in VIDEO_EXTENSIONS:
 
