@@ -802,7 +802,7 @@ async function uploadSingleFile(file) {
 
 
 
-<div class="gallery">
+<div class="gallery" id="gallery">
 {% if images %}
     {% for img in images %}
         <label class="gallery-item" style="position: relative; display: inline-block;"  onclick="openLightbox('static/Uploads/{{ img.album }}/{{ img.filename }}',{{ 'true' if img.is_video else 'false' }})">
@@ -819,7 +819,7 @@ async function uploadSingleFile(file) {
     padding: 10px;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" x="0" y="0" viewBox="0 0 163.861 163.861" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M34.857 3.613C20.084-4.861 8.107 2.081 8.107 19.106v125.637c0 17.042 11.977 23.975 26.75 15.509L144.67 97.275c14.778-8.477 14.778-22.211 0-30.686L34.857 3.613z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path></g></svg></span>
             {% else %}
                 <!-- Show normal image -->
-                <img src="{{ url_for('static', filename='Uploads/' + img.album + '/' + img.filename) }}" alt="Image">
+                <img loading="lazy" src="{{ url_for('static', filename='Uploads/' + img.album + '/' + img.filename) }}">
             {% endif %}
         </label>
     {% endfor %}
@@ -832,6 +832,91 @@ async function uploadSingleFile(file) {
 ">
     {% endif %}
 </div>
+
+
+
+
+<script>
+let page = 2;
+let loading = false;
+const currentAlbum = "{{ current_album }}";
+
+window.addEventListener("scroll", async () => {
+    if (loading) return;
+
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 400) {
+        loading = true;
+
+        // Fetch next page
+        const res = await fetch(`/load_more?page=${page}&album=${currentAlbum}`);
+        const images = await res.json();
+
+        const gallery = document.getElementById("gallery");
+
+        images.forEach(img => {
+            // Create label
+            const label = document.createElement("label");
+            label.className = "gallery-item";
+            label.style.position = "relative";
+            label.style.display = "inline-block";
+
+            // Add onclick
+            label.onclick = function () {
+                openLightbox(`static/Uploads/${img.album}/${img.filename}`, img.is_video);
+            };
+
+            // Add checkbox
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "selected_images";
+            checkbox.form = "downloadForm";
+            checkbox.value = `${img.album}/${img.filename}`;
+
+            label.appendChild(checkbox);
+
+            // Add image element
+            const imgEl = document.createElement("img");
+            imgEl.loading = "lazy";
+
+            if (img.is_video) {
+                // Video thumbnail
+                imgEl.src = `/static/Thumbnails/${img.album}_${img.filename.split('.')[0]}_thumb.jpg`;
+                imgEl.alt = "Video";
+                label.appendChild(imgEl);
+
+                // Add play overlay
+                const span = document.createElement("span");
+                span.style.position = "absolute";
+                span.style.top = "calc(50% - 25px)";
+                span.style.left = "calc(50% - 25px)";
+                span.style.color = "white";
+                span.style.background = "rgba(0,0,0,0.5)";
+                span.style.borderRadius = "3px";
+                span.style.display = "flex";
+                span.style.alignItems = "center";
+                span.style.justifyContent = "center";
+                span.style.padding = "10px";
+
+                // Add SVG inside span
+                span.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 163.861 163.861"><g><path d="M34.857 3.613C20.084-4.861 8.107 2.081 8.107 19.106v125.637c0 17.042 11.977 23.975 26.75 15.509L144.67 97.275c14.778-8.477 14.778-22.211 0-30.686L34.857 3.613z" fill="#ffffff"/></g></svg>`;
+
+                label.appendChild(span);
+
+            } else {
+                // Normal image
+                imgEl.src = `/static/Uploads/${img.album}/${img.filename}`;
+                label.appendChild(imgEl);
+            }
+
+            // Append label to gallery
+            gallery.appendChild(label);
+        });
+
+        page++;
+        loading = false;
+    }
+});
+</script>
 
 
 
@@ -880,9 +965,9 @@ async function uploadSingleFile(file) {
 
     
     
-<button id="downloadSingleBtn" class="btn radi" style="padding:10px 10px; font-size:16px;"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 128 128">
+<a id="downloadImage" href="path/to/your/image.jpg" download="my_image.jpg" class="btn radi" style="padding:10px 10px; font-size:16px;"><svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 128 128">
       <path d="M128 65c0 15.439-12.563 28-28 28H80c-2.211 0-4-1.791-4-4s1.789-4 4-4h20c11.027 0 20-8.973 20-20s-8.973-20-20-20h-4c-2.211 0-4-1.791-4-4 0-15.439-12.563-28-28-28S36 25.561 36 41c0 2.209-1.789 4-4 4h-4C16.973 45 8 53.973 8 65s8.973 20 20 20h20c2.211 0 4 1.791 4 4s-1.789 4-4 4H28C12.563 93 0 80.439 0 65s12.563-28 28-28h.223C30.219 19.025 45.5 5 64 5s33.781 14.025 35.777 32H100c15.438 0 28 12.561 28 28zm-50.828 37.172L68 111.344V61c0-2.209-1.789-4-4-4s-4 1.791-4 4v50.344l-9.172-9.172c-1.563-1.563-4.094-1.563-5.656 0s-1.563 4.094 0 5.656l16 16c.781.781 1.805 1.172 2.828 1.172s2.047-.391 2.828-1.172l16-16c1.563-1.563 1.563-4.094 0-5.656s-4.094-1.563-5.656 0z" fill="currentColor"></path>
-    </svg></button>
+    </svg></a>
 
 <button id="shareBtn" class="btn radi" style="padding:10px 10px; font-size:16px;background: limegreen;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M271.176 121.396C120.971 129.218.176 253.891.176 406v106l37.925-88.29c44.854-89.692 133.847-147.041 233.075-152.314v121.318L511.824 196 271.176 0z" fill="#ffffff" opacity="1" data-original="#000000"></path></g></svg></button>
 
@@ -1275,14 +1360,23 @@ document.body.addEventListener('click', e => {
 
 
 const lightboxImage = document.getElementById('lightboxImage');
+const downloadImage = document.getElementById('downloadImage');
 const lightboxVideo = document.getElementById('lightboxVideo');
 const imagNameInput = document.getElementById('imagName');
 
 function openLightbox(fullPath, isVideo) {
 
+        
+
+
 if(selectMode == false){
     // Update hidden input (delete / download)
     imagNameInput.value = fullPath;
+ 
+ 
+
+ downloadImage.href = fullPath;
+ downloadImage.download = fullPath.split('/').pop();
  
 document.getElementById('nameIMG').innerHTML =  '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(1,0,0,1,0,15)"><path fill="#eceff1" d="M512 58.668v266.664c0 32.43-26.238 58.668-58.668 58.668H58.668c-5.336 0-10.453-.64-15.148-2.133C18.348 375.254 0 352.426 0 325.332V58.668C0 26.238 26.238 0 58.668 0h394.664C485.762 0 512 26.238 512 58.668zm0 0" opacity="1" data-original="#eceff1" class=""></path><path fill="#ffc107" d="M149.332 106.668c0 23.562-19.102 42.664-42.664 42.664C83.102 149.332 64 130.23 64 106.668 64 83.102 83.102 64 106.668 64c23.562 0 42.664 19.102 42.664 42.668zm0 0" opacity="1" data-original="#ffc107"></path><path fill="#388e3c" d="M512 276.055v49.277c0 32.43-26.238 58.668-58.668 58.668H58.668c-5.336 0-10.453-.64-15.148-2.133l260.695-260.695c14.504-14.504 38.398-14.504 52.906 0zm0 0" opacity="1" data-original="#388e3c"></path><path fill="#4caf50" d="M363.945 384H58.668c-5.336 0-10.453-.64-15.148-2.133C18.348 375.254 0 352.426 0 325.332v-6.613l122.879-122.88c14.508-14.507 38.402-14.507 52.906 0zm0 0" opacity="1" data-original="#4caf50" class=""></path></g></svg>&nbsp;' + fullPath.split('/').pop();
 
@@ -1529,19 +1623,8 @@ function isVideoFile(src) {
 
 
 
-const downloadSingleBtn = document.getElementById('downloadSingleBtn');
 const shareBtn = document.getElementById('shareBtn');
 
-downloadSingleBtn.addEventListener('click', () => {
-    const url = images[currentIndex].src;
-    // Create a temporary link and click it to trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = url.split('/').pop();  // filename from URL
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-});
 
 shareBtn.addEventListener('click', async () => {
     const src = images[currentIndex].src;
