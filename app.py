@@ -140,7 +140,7 @@ def load_more():
             ext = f.split('.')[-1].lower()
 
             if allowed_file(f) or ext in VIDEO_EXTENSIONS:
-                create_thumbnail(f,alb)
+                #create_thumbnail(f,alb)
                 images.append({
                     "album": alb,
                     "filename": f,
@@ -213,8 +213,7 @@ def index():
             # Convert to thumbnail names
             preview_thumbs = []
             for f in preview_images:
-                name = os.path.splitext(f)[0] + ".jpg"
-                preview_thumbs.append(os.path.join(d, name))  # album/image.jpg
+                preview_thumbs.append(os.path.join(d, f))
 
             albums_info[d] = {
                 'photo_count': photo_count,
@@ -276,7 +275,7 @@ def index():
                     'album': alb,
                     'filename': f
                 }
-                create_thumbnail(f,alb)
+                #create_thumbnail(f,alb)
 
                 if ext in VIDEO_EXTENSIONS:
 
